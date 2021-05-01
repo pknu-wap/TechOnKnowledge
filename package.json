@@ -1,0 +1,19 @@
+{
+  "name": "techonknowledge",
+  "version": "1.0.0",
+  "description": "2021_WEB_TEAM1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pknu-wap/TechOnKnowledge.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pknu-wap/TechOnKnowledge/issues"
+  },
+  "homepage": "https://github.com/pknu-wap/TechOnKnowledge#readme"
+}
