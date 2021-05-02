@@ -4,7 +4,7 @@
   "description": "2021_WEB_TEAM1",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon --exec babel-node app"
+    "server": "nodemon --exec babel-node init"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
     "@babel/node": "^7.13.13",
     "@babel/preset-env": "^7.14.0",
     "express": "^4.17.1",
+    "mongod": "^2.0.0",
     "mongoose": "^5.12.7",
     "nodemon": "^2.0.7"
   },
