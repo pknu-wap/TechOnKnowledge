@@ -1,5 +1,5 @@
 import "./db";
-import app from "./app";
+import app from "./backend/app";
 
 const PORT = 4000;
 
