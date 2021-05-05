@@ -1,6 +1,7 @@
 //global
 const HOME = "/";
 const SIGNIN = "/signin";
+const SIGNUP = "/signup";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
 const LECTURE = "/lecture/:lectureId";
@@ -8,7 +9,8 @@ const SEARCH = "/search/:lectureId";
 
 const routes = {
   home: HOME,
-  singin: SIGNIN,
+  signin: SIGNIN,
+  signup: SIGNUP,
   mypage: MYPAGE,
   writing: WRITING,
   lecture: LECTURE,
@@ -16,9 +18,3 @@ const routes = {
 };
 
 export default routes;
-
-// 로그인 signin
-// 회원가입 signup
-// 마이페이지 :id/mypage
-// 글쓰기 writing
-// 강좌 lecture/:lectureId
