@@ -4,7 +4,7 @@
 
 ## To do list
 
-- [ ] Use mongoDB(with mongoose)
-- [ ] User authentication(use passport)
+- [x] Use mongoDB(with mongoose)
+- [x] User authentication(use passport)
 - [ ] Upload now lecture API
 - [ ] Add curriculum API
