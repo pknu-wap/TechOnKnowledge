@@ -6,5 +6,5 @@
 
 - [x] Use mongoDB(with mongoose)
 - [x] User authentication(use passport)
-- [ ] Upload now lecture API
+- [ ] Upload new lecture API
 - [ ] Add curriculum API

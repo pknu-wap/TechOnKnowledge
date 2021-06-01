@@ -1,8 +1,9 @@
 import passport from "passport";
 import User from "../models/User";
+import routes from "../routes";
 
 export const search = () => {
-  console.log("this function will excute search some lectures");
+  console.log("this function will execute search some lectures");
 };
 
 export const postJoin = async (req, res, next) => {
@@ -11,7 +12,7 @@ export const postJoin = async (req, res, next) => {
   } = req;
   if (password !== password2) {
     res.status(400);
-    res.render("join", { pageTitle: "join" });
+    // res.render("join", { pageTitle: "join" });
   } else {
     try {
       const user = await User({

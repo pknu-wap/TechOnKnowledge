@@ -24,6 +24,10 @@ const LectureSchema = new mongoose.Schema({
       ref: "QnA",
     },
   ],
+  curriculum: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "LectureId",
+  },
 });
 
 const model = mongoose.model("Lecture", LectureSchema);
