@@ -1,4 +1,4 @@
-import QnAModel from "../models/qna";
+import QnAModel from "../models/QnA";
 import { tryConvertToObjectId } from "./filter";
 
 //post  /:QnAId

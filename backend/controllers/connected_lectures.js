@@ -1,4 +1,4 @@
-import lectureModel from "../models/lecture";
+import lectureModel from "../models/Lecture";
 import { tryConvertToObjectId } from "./filter";
 
 //post  /:lectureId

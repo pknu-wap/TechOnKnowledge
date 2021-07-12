@@ -1,5 +1,5 @@
-import lectureModel from "../models/lecture";
-import QnAModel from "../models/qna";
+import lectureModel from "../models/Lecture";
+import QnAModel from "../models/QnA";
 import { tryConvertToObjectId } from "./filter";
 
 //get /:lectureId
