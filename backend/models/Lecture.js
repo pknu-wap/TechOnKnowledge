@@ -9,9 +9,9 @@ const LectureSchema = new mongoose.Schema({
   fee: Number,
   term: Number,
   explain: String,
-  hash_tag: String,
+  hash_tag: Array,
   recommandation: Number,
-  eplilogue: String,
+  eplilogue: Array,
   connected_lecture: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +28,8 @@ const LectureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "LectureId",
   },
+  imageSrc: String,
+  time: Date, //작성시간 변수들 이름 통일하기
 });
 
 const model = mongoose.model("Lecture", LectureSchema);
