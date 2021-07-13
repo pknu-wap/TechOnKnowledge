@@ -13,7 +13,7 @@ const ADD_CURRICULUM = "/add-curriculum";
 const EPLIOGUE = "/epliogue";
 const QNA = "/qna";
 const QNA_ANSWER = "/qna-answer";
-const CONNECTED_LECTURE = "connected-lecture";
+const CONNECTED_LECTURE = "/connected-lecture";
 
 const GET_EPLIOGUE = "/:lectureId";
 const POST_EPLIOGUE = "/:lectureId";
@@ -24,11 +24,14 @@ const POST_QUESTION = "/:lectureId";
 const PUT_QUESTION = "/:QnAId";
 const DELETE_QUESTION = "/:QnAId";
 const POST_ANSWER = "/:QnAId";
-const PUT_ANSWER = "/:QnAId";
-const DELETE_ANSWER = "/:QnAId";
+const PUT_ANSWER = "/:QnAId/:targetId";
+const DELETE_ANSWER = "/:QnAId/:targetId";
+const GET_CONNECTED_LECTURE = "/:lectureId";
 const POST_CONNECTED_LECTURE = "/:lectureId";
 const PUT_CONNECTED_LECTURE = "/:lectureId/:targetId";
 const DELETE_CONNECTED_LECTURE = "/:lectureId/:targetId";
+const RECOMMENDATION_BEFORE_CONNECTED_LECTURE = "/recommendation-before/:lectureId";
+const RECOMMENDATION_AFTER_CONNECTED_LECTURE = "/recommendation-after/:lectureId";
 
 //Kakao
 
@@ -65,9 +68,12 @@ const routes = {
   postAnswer: POST_ANSWER,
   putAnswer: PUT_ANSWER,
   deleteAnswer: DELETE_ANSWER,
-  postConnectedLecutre: POST_CONNECTED_LECTURE,
-  putConnectedLecutre: PUT_CONNECTED_LECTURE,
-  deleteConnectedLecutre: DELETE_CONNECTED_LECTURE,
+  getConnectedLecture: GET_CONNECTED_LECTURE,
+  postConnectedLecture: POST_CONNECTED_LECTURE,
+  putConnectedLecture: PUT_CONNECTED_LECTURE,
+  deleteConnectedLecture: DELETE_CONNECTED_LECTURE,
+  recommendationAfterConnectedLecture: RECOMMENDATION_AFTER_CONNECTED_LECTURE,
+  recommendationBeforeConnectedLecture: RECOMMENDATION_BEFORE_CONNECTED_LECTURE,
 };
 
 export default routes;
