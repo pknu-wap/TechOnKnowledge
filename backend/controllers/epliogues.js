@@ -107,7 +107,7 @@ export const deleteEpliogue = async (req, res) => {
     }
     if (!updateResult.nModified) {
       //epliogueId에 매핑되는 Epliogue가 없거나, 작성자 미일치
-      return res.status(404).json({ msg: "Bad Request" });
+      return res.status(404).json({ msg: "failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {
@@ -148,7 +148,7 @@ export const putEpliogue = async (req, res) => {
       //lectureId에 매핑되는 Document가 없거나
       //또는 epliogueId가 epliogue 배열에 존재하지 않거나
       //또는 작성자 정보 미일치
-      return res.status(404).json({ msg: "Bad Request" });
+      return res.status(404).json({ msg: "failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {

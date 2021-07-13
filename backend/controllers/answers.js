@@ -1,7 +1,6 @@
 import QnAModel from "../models/QnA";
 import { tryConvertToObjectId } from "./filter";
 
-//post  /:QnAId
 //QnA 질문에 답변을 등록한다.
 //
 //URL 매개변수
@@ -9,7 +8,7 @@ import { tryConvertToObjectId } from "./filter";
 //
 //Body 매개변수
 //answer : 답변 내용(string)
-export const postAnswer = (req, res) => {
+export const postAnswer = async (req, res) => {
   //TODO : 유저 인증 추가
 
   const QnAId = tryConvertToObjectId(req.params.QnAId);
@@ -47,7 +46,6 @@ export const postAnswer = (req, res) => {
     });
 };
 
-//put  /:QnAId
 //QnA 답변을 수정한다.
 //
 //URL 매개변수
@@ -55,7 +53,7 @@ export const postAnswer = (req, res) => {
 //
 //Body 매개변수
 //answer : 변경할 답변 내용(string)
-export const putAnswer = (req, res) => {
+export const putAnswer = async (req, res) => {
   //TODO : 유저 인증 추가
 
   const QnAId = tryConvertToObjectId(req.params.QnAId);
@@ -93,7 +91,6 @@ export const putAnswer = (req, res) => {
     });
 };
 
-//delete  /:QnAId
 //QnA 답변을 삭제한다.
 //
 //URL 매개변수
@@ -101,7 +98,7 @@ export const putAnswer = (req, res) => {
 //
 //Body 매개변수
 //
-export const deleteAnswer = (req, res) => {
+export const deleteAnswer = async (req, res) => {
   //TODO : 유저 인증 추가
 
   const QnAId = tryConvertToObjectId(req.params.QnAId);
