@@ -24,15 +24,3 @@ export const parseObjectId = (url) => {
     return null;
   }
 };
-
-//TODO
-//models/User.js 변경
-//new Date()가 UTC+0 기준으로 잡히는 것 해결
-//관련강의
-//  이전에 배우기 추천/ 나중에 배우기 추천의 변수/함수 이름 정하기
-//  추천 중복여부 document에 저장
-//후기
-//  추천 추가
-//  추천 중복여부 document에 저장
-//질문
-//  answer 2개 이상으로 변경
