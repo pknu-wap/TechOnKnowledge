@@ -1,4 +1,5 @@
 import lectureModel from "../models/Lecture";
+import routes from "../routes";
 import { parseObjectId, tryConvertToObjectId } from "./filter";
 
 const argumentsCheck = async (url, description, lectureId) => {
@@ -26,9 +27,21 @@ const argumentsCheck = async (url, description, lectureId) => {
   return result;
 };
 
-//get
+//  /:lectureId
 export const getConnectedLecture = async (req, res) => {
-
+  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  try {
+    const query = { _id: lectureId };
+    let documents = await lectureModel.find(query).lean();
+    const length = documents.length;
+    for (let i = 0; i < length; ++i) {
+      documents[i].lectureTitle = `${routes.lectures}/${documents[i].lectureId}`;
+    }
+    res.status(200).json(documents);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
 };
 
 //관련강의를 추가한다.

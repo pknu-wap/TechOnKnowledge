@@ -31,7 +31,6 @@ export const parseObjectId = (url) => {
 //관련강의
 //  이전에 배우기 추천/ 나중에 배우기 추천의 변수/함수 이름 정하기
 //  추천 중복여부 document에 저장
-//  get 추가, 강의 id에 매핑되는 제목 바로 보내주기
 //후기
 //  추천 추가
 //  추천 중복여부 document에 저장
