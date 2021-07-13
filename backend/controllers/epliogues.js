@@ -46,7 +46,7 @@ export const postEpliogue = async (req, res) => {
   try {
     //Query 내용 : lectureId에 매핑되는 Documents에서 Epliogue의 마지막 element만 가져옴
     const aggregateQuery = [
-      { $project: { Epliogue: { $slice: ["$Epliogue", -1] } } },
+      { $project: { epliogue: { $slice: ["$epliogue", -1] } } },
       { $match: { _id: lectureId } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
@@ -55,8 +55,8 @@ export const postEpliogue = async (req, res) => {
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
     let id = 0;
-    if (aggResult[0].Epliogue.length > 0) {
-      id = aggResult[0].Epliogue[0].id + 1;
+    if (aggResult[0].epliogue.length > 0) {
+      id = aggResult[0].epliogue[0].id + 1;
     }
     const epliogueDocument = {
       value: data,
