@@ -50,6 +50,7 @@ export const postEpliogue = async (req, res) => {
       { $match: { _id: lectureId } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
+    console.log(aggResult);
     if (aggResult.length === 0) {
       //lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });

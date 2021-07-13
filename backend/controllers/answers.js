@@ -63,7 +63,7 @@ export const postAnswer = async (req, res) => {
 export const putAnswer = async (req, res) => {
   const QnAId = tryConvertToObjectId(req.params.QnAId);
   const id = req.params.targetId * 1;
-  if (!QnAId || !id) {
+  if (!QnAId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
@@ -100,7 +100,7 @@ export const putAnswer = async (req, res) => {
 export const deleteAnswer = async (req, res) => {
   const QnAId = tryConvertToObjectId(req.params.QnAId);
   const id = req.params.targetId * 1;
-  if (!QnAId || !id) {
+  if (!QnAId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
   try {

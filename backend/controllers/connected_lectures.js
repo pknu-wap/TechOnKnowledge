@@ -1,5 +1,4 @@
 import lectureModel from "../models/Lecture";
-import routes from "../routes";
 import { parseObjectId, tryConvertToObjectId } from "./filter";
 
 const argumentsCheck = async (url, description, lectureId) => {
@@ -32,12 +31,17 @@ export const getConnectedLecture = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
   try {
     const query = { _id: lectureId };
-    let documents = await lectureModel.find(query).lean();
-    const length = documents.length;
+    const select = { connected_lecture: 1, _id: 0 };
+    let documents = await lectureModel.findOne(query, select).lean();
+    const length = documents.connected_lecture.length;
+    //
+    //documents 상태 : {connected_lecture: [connected_lecture documents...] }
     for (let i = 0; i < length; ++i) {
-      documents[i].lectureTitle = `${routes.lectures}/${documents[i].lectureId}`;
+      let titleQuery = { _id: documents.connected_lecture[i].lectureId };
+      let result = await lectureModel.findOne(titleQuery);
+      documents.connected_lecture[i].lectureTitle = result.title;
     }
-    res.status(200).json(documents);
+    res.status(200).json(documents.connected_lecture);
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -61,13 +65,26 @@ export const postConnectedLecutre = async (req, res) => {
   if (!args.valid) {
     return res.status(400).json({ msg: "Bad Request" });
   }
-  if (!args.error) {
+  if (args.error) {
     console.log(args.errorlog);
-    res.status(500).json({ msg: "Internal Server Error" });
+    return res.status(500).json({ msg: "Internal Server Error" });
   }
   try {
+    const aggregateQuery = [
+      { $project: { connected_lecture: { $slice: ["$connected_lecture", -1] } } },
+      { $match: { _id: args.lectureId } },
+    ];
+    const aggResult = await lectureModel.aggregate(aggregateQuery);
+    if (aggResult.length === 0) {
+      //lectureId에 매핑되는 Document가 없음
+      return res.status(404).json({ msg: "Lecture Not Found" });
+    }
+    let id = 0;
+    if (aggResult[0].connected_lecture.length > 0) {
+      id = aggResult[0].connected_lecture[0].id + 1;
+    }
     const document = {
-      id: 0, //TODO: id 정하는 부분 구현(model에 id저장하는 형태 또는 epliogue에서 사용한 array 마지막 원소값 사용하는 형태)
+      id: id,
       lectureId: args.connectedLectureId,
       description: args.description,
       writerId: null,
@@ -108,12 +125,12 @@ export const putConnectedLecture = async (req, res) => {
     req.params.lectureId
   );
   const targetId = req.params.targetId * 1;
-  if (!args.valid || !targetId) {
+  if (!args.valid || isNaN(targetId)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
-  if (!args.error) {
+  if (args.error) {
     console.log(args.errorlog);
-    res.status(500).json({ msg: "Internal Server Error" });
+    return res.status(500).json({ msg: "Internal Server Error" });
   }
   try {
     const query = {
@@ -148,8 +165,8 @@ export const putConnectedLecture = async (req, res) => {
 //
 export const deleteConnectedLecture = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const id = req.params.targetId * 1;
-  if (!lectureId || !id) {
+  const targetId = req.params.targetId * 1;
+  if (!lectureId || isNaN(targetId)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
@@ -158,7 +175,7 @@ export const deleteConnectedLecture = async (req, res) => {
     const update = {
       $pull: {
         connected_lecture: {
-          id: id,
+          id: targetId,
           writerId: null,
         },
       },

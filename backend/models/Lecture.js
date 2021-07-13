@@ -12,12 +12,7 @@ const LectureSchema = new mongoose.Schema({
   hash_tag: Array,
   recommandation: Number,
   eplilogue: Array,
-  connected_lecture: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Lecture",
-    },
-  ],
+  connected_lecture: Array,
   qna: [
     {
       type: mongoose.Schema.Types.ObjectId,
