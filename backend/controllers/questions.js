@@ -135,10 +135,11 @@ export const deleteQuestion = async (req, res) => {
       //현재 로그인 정보와 document의 writerId가 일치하지 않음
       return res.status(400).json({ msg: "Bad Request" });
     }
-    const deletePromise = QnADocument.remove();
-    const updatePromise = lectureModel.updateOne(lectureQuery, lectureUpdate);
-    const values = await Promise.All([deletePromise, updatePromise]);
-    if (!values[1].n) {
+    const deleteResult = await QnADocument.remove();
+    const updateResult = await lectureModel
+      .updateOne(lectureQuery, lectureUpdate)
+      .exec();
+    if (!updateResult) {
       // lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
