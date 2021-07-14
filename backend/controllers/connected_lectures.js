@@ -71,7 +71,9 @@ export const postConnectedLecutre = async (req, res) => {
   }
   try {
     const aggregateQuery = [
-      { $project: { connected_lecture: { $slice: ["$connected_lecture", -1] } } },
+      {
+        $project: { connected_lecture: { $slice: ["$connected_lecture", -1] } },
+      },
       { $match: { _id: args.lectureId } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
@@ -196,9 +198,79 @@ export const deleteConnectedLecture = async (req, res) => {
 };
 
 export const recommendationBefore = async (req, res) => {
+  //임시로 body.id로 userId 받아옴, 추후 변경할것
+  const userId = req.body.userId;
 
+  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const targetId = req.params.targetId * 1;
+  if (!lectureId || isNaN(targetId)) {
+    return res.status(400).json({ msg: "Bad Request" });
+  }
+
+  try {
+    const query = {
+      _id: lectureId,
+      connected_lecture: {
+        $elemMatch: {
+          id: targetId,
+          recommendation_before_users: { $nin: [userId] },
+        },
+      },
+    };
+    const update = {
+      $inc: {
+        "connected_lecture.$.recommendation_before": 1,
+      },
+      $addToSet: {
+        "connected_lecture.$.recommendation_before_users": userId,
+      },
+    };
+    const result = await lectureModel.updateOne(query, update);
+    if (!result.n) {
+      return res.status(404).json({ msg: "Failure" });
+    }
+    res.status(200).json({ msg: "success" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
 };
 
 export const recommendationAfter = async (req, res) => {
+  //임시로 body.id로 userId 받아옴, 추후 변경할것
+  const userId = req.body.userId;
 
+  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const targetId = req.params.targetId * 1;
+  if (!lectureId || isNaN(targetId)) {
+    return res.status(400).json({ msg: "Bad Request" });
+  }
+
+  try {
+    const query = {
+      _id: lectureId,
+      connected_lecture: {
+        $elemMatch: {
+          id: targetId,
+          recommendation_after_users: { $nin: [userId] },
+        },
+      },
+    };
+    const update = {
+      $inc: {
+        "connected_lecture.$.recommendation_after": 1,
+      },
+      $addToSet: {
+        "connected_lecture.$.recommendation_after_users": userId,
+      },
+    };
+    const result = await lectureModel.updateOne(query, update);
+    if (!result.n) {
+      return res.status(404).json({ msg: "Failure" });
+    }
+    res.status(200).json({ msg: "success" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
 };

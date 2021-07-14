@@ -84,13 +84,13 @@ export const postEpliogue = async (req, res) => {
 //
 //URL 매개변수
 //lectureId : 후기를 삭제할 추천 강의글의 ObjectId
-//epliogueId : 삭제될 후기의 id
+//targetId : 삭제될 후기의 id
 //
 //Body 매개변수
 //
 export const deleteEpliogue = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const id = req.params.epliogueId * 1;
+  const id = req.params.targetId * 1;
   if (!lectureId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
@@ -120,13 +120,13 @@ export const deleteEpliogue = async (req, res) => {
 //
 //URL 매개변수
 //lectureId : 후기를 수정할 추천 강의글의 ObjectId
-//epliogueId : 수정할 후기의 id
+//targetId : 수정할 후기의 id
 //
 //Body 매개변수
 //data : 새로운 후기의 내용(string)
 export const putEpliogue = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const id = req.params.epliogueId * 1;
+  const id = req.params.targetId * 1;
   if (!lectureId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
@@ -150,6 +150,45 @@ export const putEpliogue = async (req, res) => {
       return res.status(404).json({ msg: "failure" });
     }
     res.status(200).json({ msg: "Success" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
+export const recommendation = async (req, res) => {
+  //임시로 body.id로 userId 받아옴, 추후 변경할것
+  const userId = req.body.userId;
+
+  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const targetId = req.params.targetId * 1;
+  if (!lectureId || isNaN(targetId)) {
+    return res.status(400).json({ msg: "Bad Request" });
+  }
+
+  try {
+    const query = {
+      _id: lectureId,
+      epliogue: {
+        $elemMatch: {
+          id: targetId,
+          recommendation_users: { $nin: [userId] },
+        },
+      },
+    };
+    const update = {
+      $inc: {
+        "epliogue.$.recommendation": 1,
+      },
+      $addToSet: {
+        "epliogue.$.recommendation_users": userId,
+      },
+    };
+    const result = await lectureModel.updateOne(query, update);
+    if (!result.n) {
+      return res.status(404).json({ msg: "Failure" });
+    }
+    res.status(200).json({ msg: "success" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });

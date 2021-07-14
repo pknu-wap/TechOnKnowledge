@@ -17,8 +17,9 @@ const CONNECTED_LECTURE = "/connected-lecture";
 
 const GET_EPLIOGUE = "/:lectureId";
 const POST_EPLIOGUE = "/:lectureId";
-const DELETE_EPLIGOUE = "/:lectureId/:epliogueId";
-const PUT_EPLIGOUE = "/:lectureId/:epliogueId";
+const DELETE_EPLIGOUE = "/:lectureId/:targetId";
+const PUT_EPLIGOUE = "/:lectureId/:targetId";
+const RECOMMENDATION_EPLIGOUE = "/recommendation/:lectureId/:targetId";
 const GET_QNA = "/:lectureId";
 const POST_QUESTION = "/:lectureId";
 const PUT_QUESTION = "/:QnAId";
@@ -30,8 +31,8 @@ const GET_CONNECTED_LECTURE = "/:lectureId";
 const POST_CONNECTED_LECTURE = "/:lectureId";
 const PUT_CONNECTED_LECTURE = "/:lectureId/:targetId";
 const DELETE_CONNECTED_LECTURE = "/:lectureId/:targetId";
-const RECOMMENDATION_BEFORE_CONNECTED_LECTURE = "/recommendation-before/:lectureId";
-const RECOMMENDATION_AFTER_CONNECTED_LECTURE = "/recommendation-after/:lectureId";
+const RECOMMENDATION_BEFORE_CONNECTED_LECTURE = "/recommendation-before/:lectureId/:targetId";
+const RECOMMENDATION_AFTER_CONNECTED_LECTURE = "/recommendation-after/:lectureId/:targetId";
 
 //Kakao
 

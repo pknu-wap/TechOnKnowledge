@@ -19,7 +19,6 @@ export const postAnswer = async (req, res) => {
   if (!answer) {
     return res.status(400).json({ msg: "arguments 'answer' is undefined" });
   }
-
   try {
     const aggregateQuery = [
       { $project: { answer: { $slice: ["$answer", -1] } } },
