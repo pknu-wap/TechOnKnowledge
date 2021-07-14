@@ -135,8 +135,7 @@ export const putConnectedLecture = async (req, res) => {
   try {
     const query = {
       _id: args.lectureId,
-      "connected_lecture.id": targetId,
-      "connected_lecture.writerId": null,
+      connected_lecture: { $elemMatch: { id: targetId, writerId: null } },
     };
     const update = {
       $set: {

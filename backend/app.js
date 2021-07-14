@@ -1,24 +1,26 @@
 import express from "express";
-import passport from "passport";
+//import passport from "passport";
 import globalRouter from "./routers/globalRouter";
-import lectureRouter from "./routers/lectureRouter";
+//import lectureRouter from "./routers/lectureRouter";
 import epliogueRouter from "./routers/epliogueRouter";
-import QnARouter from "./routers/QnARouter";
+import questionRouter from "./routers/questionRouter";
 import connectedLectureRouter from "./routers/connectedLectureRouter";
 import routes from "./routes";
-import "./passport";
+import answerRouter from "./routers/answerRouter";
+//import "./passport";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.initialize());
+//app.use(passport.session());
 
 app.use(routes.home, globalRouter);
-app.use(routes.lectures, lectureRouter);
+//app.use(routes.lectures, lectureRouter);
 app.use(routes.epliouge, epliogueRouter);
 app.use(routes.connectedLecture, connectedLectureRouter);
-app.use(routes.QnARouter, QnARouter);
+app.use(routes.QnA, questionRouter);
+app.use(routes.QnAAnswer, answerRouter);
 
 export default app;

@@ -11,7 +11,7 @@ const LectureSchema = new mongoose.Schema({
   explain: String,
   hash_tag: Array,
   recommandation: Number,
-  eplilogue: Array,
+  epliogue: Array,
   connected_lecture: Array,
   qna: [
     {

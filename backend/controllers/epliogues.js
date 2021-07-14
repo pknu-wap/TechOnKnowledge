@@ -50,7 +50,6 @@ export const postEpliogue = async (req, res) => {
       { $match: { _id: lectureId } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
-    console.log(aggResult);
     if (aggResult.length === 0) {
       //lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });
@@ -91,15 +90,15 @@ export const postEpliogue = async (req, res) => {
 //
 export const deleteEpliogue = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
-  if (!lectureId) {
-    //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
+  const id = req.params.epliogueId * 1;
+  if (!lectureId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
   try {
     const query = { _id: lectureId };
     const update = {
-      $pull: { epliogue: { id: req.params.epliogueId * 1, writerId: null } },
+      $pull: { epliogue: { id: id, writerId: null } },
     };
     const updateResult = await lectureModel.updateOne(query, update);
     if (!updateResult.n) {
@@ -127,8 +126,8 @@ export const deleteEpliogue = async (req, res) => {
 //data : 새로운 후기의 내용(string)
 export const putEpliogue = async (req, res) => {
   const lectureId = tryConvertToObjectId(req.params.lectureId);
-  if (!lectureId) {
-    //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
+  const id = req.params.epliogueId * 1;
+  if (!lectureId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
@@ -140,8 +139,7 @@ export const putEpliogue = async (req, res) => {
   try {
     const query = {
       _id: lectureId,
-      "epliogue.id": req.params.epliogueId * 1,
-      "epliogue.writerId": null,
+      epliogue: { $elemMatch: { id: id, writerId: null } },
     };
     const update = { $set: { "epliogue.$.value": data } };
     const updateResult = await lectureModel.updateOne(query, update);
