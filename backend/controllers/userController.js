@@ -1,40 +1,55 @@
 import passport from "passport";
 import User from "../models/User";
+import Lecture from "../models/Lecture";
 import routes from "../routes";
 
-export const search = () => {
-  console.log("this function will execute search some lectures");
+export const search = async (req, res) => {
+  let {
+    params: { content: subject }, //title, teacher
+    query: { content: searchingBy, page, sort },
+  } = req;
+  if (page === undefined) page = 1;
+  if (sort === undefined) sort = "popular";
+  console.log(subject);
+  console.log(searchingBy);
+  console.log(page);
+  console.log(sort);
+  let lectures = [];
+  try {
+    lectures = await Lecture.find({
+      subject: { $regex: searchingBy, $options: "i" },
+    }).sort({ sort: -1 });
+    //sort랑 slice 가 안됐음
+  } catch (error) {
+    console.log(error);
+  }
+  res.send(lectures);
 };
 
 export const postJoin = async (req, res, next) => {
   const {
-    body: { name, email, password, password2 },
+    body: { name, email, password },
   } = req;
-  if (password !== password2) {
-    res.status(400);
-    // res.render("join", { pageTitle: "join" });
-  } else {
-    try {
-      const user = await User({
-        name,
-        email,
-      });
-      await User.register(user, password);
-      next();
-    } catch (error) {
-      console.log(error);
-      //   res.redirect(routes.home);
-    }
+  try {
+    const user = await User({
+      name,
+      email,
+    });
+    await User.register(user, password);
+    next();
+  } catch (error) {
+    console.log(error);
+    //   res.redirect(routes.home);
   }
 };
 
 export const postLogin = passport.authenticate("local", {
-  //   failureRedirect: routes.login,
-  //   successRedirect: routes.home,
+  failureRedirect: routes.login,
+  successRedirect: routes.home,
 });
 
 export const postKakaoLogIn = (req, res) => {
-  // res.redirect(routes.home);
+  res.redirect("http://localhost:3000");
 };
 
 export const kakaoLoginCallback = async (_, __, profile, cb) => {
@@ -63,19 +78,14 @@ export const kakaoLogin = passport.authenticate("kakao");
 
 export const logout = (req, res) => {
   req.logout();
-  //   res.redirect(routes.home);
+  req.session.save();
 };
 
 export const postChangePassword = async (req, res) => {
   const {
-    body: { oldPassword, newPassword, newPassword1 },
+    body: { oldPassword, newPassword },
   } = req;
   try {
-    if (newPassword !== newPassword1) {
-      res.status(200);
-      //   res.redirect(routes.changePassword);
-      return;
-    }
     await req.user.changePassword(oldPassword, newPassword);
     // res.redirect(routes.me);
   } catch (error) {

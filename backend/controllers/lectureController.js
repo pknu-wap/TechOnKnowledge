@@ -36,6 +36,15 @@ export const postUploadLecture = async (req, res) => {
   });
 };
 
+export const postRecommend = (req, res) => {
+  const {
+    body: { lectureId, userId },
+  } = req;
+  console.log(lectureId);
+  console.log(userId);
+  res.send("recommend");
+};
+
 export const postAddCurriculum = async (req, res) => {
   const {
     body: { targetId },

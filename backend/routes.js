@@ -5,9 +5,12 @@ const SIGNUP = "/signup";
 const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
-const LECTURE = "/lecture/:lectureId";
-const SEARCH = "/search/:lectureId";
+const SEARCH = "/search/:content";
 const CHANGE_PASSWORD = "/change-password";
+
+//lecture
+const LECTURE = "/lecture";
+const RECOMMEND_LECTURE = "/recommend";
 const UPLOAD_LECTURE = "/upload-lecture";
 const ADD_CURRICULUM = "/add-curriculum";
 
@@ -23,13 +26,17 @@ const routes = {
   mypage: MYPAGE,
   writing: WRITING,
   lecture: LECTURE,
-  search: SEARCH,
   kakao: KAKAO,
   kakaoCallback: KAKAO_CALLBACK,
   logout: LOGOUT,
   changePassword: CHANGE_PASSWORD,
   addCurriculum: ADD_CURRICULUM,
   uploadLecture: UPLOAD_LECTURE,
+  search: (content) => {
+    if (content) return `/search/${content}`;
+    else return SEARCH;
+  },
+  recommendLecture: RECOMMEND_LECTURE,
 };
 
 export default routes;

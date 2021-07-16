@@ -1,6 +1,6 @@
 import passport from "passport";
 import kakaoStrategy from "passport-kakao";
-import { kakaoLoginCallback } from "./controllers/authentication";
+import { kakaoLoginCallback } from "./controllers/userController";
 import User from "./models/User";
 
 passport.use(User.createStrategy());
@@ -8,7 +8,7 @@ passport.use(User.createStrategy());
 passport.use(
   new kakaoStrategy(
     {
-      clientID: process.env.KAKAO_SECRET,
+      clientID: process.env.KAKAO_ID,
       callbackURL: `http://localhost:4000/auth/kakao/callback`,
     },
     kakaoLoginCallback

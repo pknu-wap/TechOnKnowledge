@@ -13,6 +13,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(routes.home, globalRouter);
-app.use(routes.lectures, lectureRouter);
+app.use(routes.lecture, lectureRouter);
 
 export default app;
