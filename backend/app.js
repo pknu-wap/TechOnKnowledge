@@ -1,7 +1,7 @@
 import express from "express";
 //import passport from "passport";
 import globalRouter from "./routers/globalRouter";
-//import lectureRouter from "./routers/lectureRouter";
+import lectureRouter from "./routers/lectureRouter";
 import epliogueRouter from "./routers/epliogueRouter";
 import questionRouter from "./routers/questionRouter";
 import connectedLectureRouter from "./routers/connectedLectureRouter";
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 //app.use(passport.session());
 
 app.use(routes.home, globalRouter);
-//app.use(routes.lectures, lectureRouter);
+app.use(routes.lecture, lectureRouter);
 app.use(routes.epliouge, epliogueRouter);
 app.use(routes.connectedLecture, connectedLectureRouter);
 app.use(routes.QnA, questionRouter);
