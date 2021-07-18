@@ -6,7 +6,7 @@ import {
 } from "../controllers/lecture";
 import routes from "../routes";
 
-const lectureRouter = express.Router();
+const lectureRouter = express.Router({ mergeParams: true });
 
 lectureRouter.post(routes.uploadLecture, postUploadLecture);
 lectureRouter.post(routes.addCurriculum, postAddCurriculum);
