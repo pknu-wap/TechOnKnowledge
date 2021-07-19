@@ -1,23 +1,12 @@
 import QnAModel from "../models/QnA";
 import { tryConvertToObjectId } from "./filter";
 
-//QnA 질문에 답변을 등록한다.
-//
-//URL 매개변수
-//QnAId : 답변을 등록할 질문(QnA)의 ObjectId
-//
-//Body 매개변수
-//answer : 답변 내용(string)
 export const postAnswer = async (req, res) => {
-  const QnAId = tryConvertToObjectId(req.params.QnAId);
-  if (!QnAId) {
+  const QnAId = tryConvertToObjectId(req.body.QnAId);
+  let answer = req.body.answer;
+  if (!QnAId || !answer) {
     //QnAId가 유효하지 않은 형식(ObjectId로 변환 불가능)
     return res.status(400).json({ msg: "Bad Request" });
-  }
-
-  let answer = req.body.answer;
-  if (!answer) {
-    return res.status(400).json({ msg: "arguments 'answer' is undefined" });
   }
   try {
     const aggregateQuery = [
@@ -33,8 +22,8 @@ export const postAnswer = async (req, res) => {
       id = aggResult[0].answer[0].id + 1;
     }
     const document = {
-      writerId: null,
-      writeTime: new Date(),
+      author: req.user,
+      createAt: new Date(),
       value: answer,
       id: id,
     };
@@ -51,29 +40,18 @@ export const postAnswer = async (req, res) => {
   }
 };
 
-//QnA 답변을 수정한다.
-//
-//URL 매개변수
-//QnAId : 답변을 수정할 질문(QnA)의 ObjectId
-//targetId : 수정할 답변의 id
-//
-//Body 매개변수
-//answer : 변경할 답변 내용(string)
 export const putAnswer = async (req, res) => {
-  const QnAId = tryConvertToObjectId(req.params.QnAId);
-  const id = req.params.targetId * 1;
-  if (!QnAId || isNaN(id)) {
+  const QnAId = tryConvertToObjectId(req.body.QnAId);
+  let answer = req.body.answer;
+  const id = req.body.targetId * 1;
+  if (!QnAId || isNaN(id) || !answer) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
-  let answer = req.body.answer;
-  if (!answer) {
-    return res.status(400).json({ msg: "arguments 'answer' is undefined" });
-  }
   try {
     const query = {
       _id: QnAId,
-      answer: { $elemMatch: { id: id, writerId: null } },
+      answer: { $elemMatch: { id: id, author: req.user } },
     };
     const update = { $set: { "answer.$.value": answer } };
     const updateResult = await QnAModel.updateOne(query, update);
@@ -87,24 +65,16 @@ export const putAnswer = async (req, res) => {
   }
 };
 
-//QnA 답변을 삭제한다.
-//
-//URL 매개변수
-//QnAId : 답변을 삭제할 질문(QnA)의 ObjectId
-//targetId : 삭제할 답변의 id
-//
-//Body 매개변수
-//
 export const deleteAnswer = async (req, res) => {
-  const QnAId = tryConvertToObjectId(req.params.QnAId);
-  const id = req.params.targetId * 1;
+  const QnAId = tryConvertToObjectId(req.body.QnAId);
+  const id = req.body.targetId * 1;
   if (!QnAId || isNaN(id)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
   try {
     const query = { _id: QnAId };
     const update = {
-      $pull: { answer: { id: id, writerId: null } },
+      $pull: { answer: { id: id, author: req.user } },
     };
     const updateResult = await QnAModel.updateOne(query, update);
     if (!updateResult.n) {

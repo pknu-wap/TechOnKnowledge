@@ -62,7 +62,7 @@ export const postAddCurriculum = async (req, res) => {
 };
 
 export const getLectureInfo = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
   if (!lectureId) {
     //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
     return res.status(400).json({ msg: "Bad Request" });

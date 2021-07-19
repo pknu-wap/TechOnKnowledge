@@ -1,15 +1,8 @@
 import lectureModel from "../models/Lecture";
 import { tryConvertToObjectId } from "./filter";
 
-//후기 목록을 배열 형태로 반환한다.
-//
-//URL 매개변수
-//lectureId : 후기 목록을 가져올 추천 강의글의 ObjectId
-//
-//Body 매개변수
-//
 export const getEpliogue = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
   if (!lectureId) {
     //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
     return res.status(400).json({ msg: "Bad Request" });
@@ -25,22 +18,11 @@ export const getEpliogue = async (req, res) => {
   }
 };
 
-//후기를 추가한다.
-//
-//URL 매개변수
-//lectureId : 후기를 추가(작성)할 추천 강의글의 ObjectId
-//
-//Body 매개변수
-//data : 후기 내용(string)
 export const postEpliogue = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  if (!lectureId) {
-    //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
-    return res.status(400).json({ msg: "Bad Request" });
-  }
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
   let data = req.body.data;
-  if (!data) {
-    return res.status(400).json({ msg: "arguments 'data' is undefined" });
+  if (!lectureId || !data) {
+    return res.status(400).json({ msg: "Bad Request" });
   }
 
   try {
@@ -61,8 +43,8 @@ export const postEpliogue = async (req, res) => {
     const epliogueDocument = {
       value: data,
       id: id,
-      writerId: null,
-      writeTime: new Date(),
+      author: req.user,
+      createAt: new Date(),
       recommendation: 0,
       recommendation_users: [],
     };
@@ -80,25 +62,18 @@ export const postEpliogue = async (req, res) => {
   }
 };
 
-//후기를 삭제한다.
-//
-//URL 매개변수
-//lectureId : 후기를 삭제할 추천 강의글의 ObjectId
-//targetId : 삭제될 후기의 id
-//
-//Body 매개변수
-//
 export const deleteEpliogue = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const id = req.params.targetId * 1;
-  if (!lectureId || isNaN(id)) {
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const id = req.body.targetId * 1;
+  let data = req.body.data;
+  if (!lectureId || isNaN(id) || !data) {
     return res.status(400).json({ msg: "Bad Request" });
   }
 
   try {
     const query = { _id: lectureId };
     const update = {
-      $pull: { epliogue: { id: id, writerId: null } },
+      $pull: { epliogue: { id: id, author: req.user } },
     };
     const updateResult = await lectureModel.updateOne(query, update);
     if (!updateResult.n) {
@@ -116,30 +91,18 @@ export const deleteEpliogue = async (req, res) => {
   }
 };
 
-//후기를 수정한다.
-//
-//URL 매개변수
-//lectureId : 후기를 수정할 추천 강의글의 ObjectId
-//targetId : 수정할 후기의 id
-//
-//Body 매개변수
-//data : 새로운 후기의 내용(string)
 export const putEpliogue = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const id = req.params.targetId * 1;
-  if (!lectureId || isNaN(id)) {
-    return res.status(400).json({ msg: "Bad Request" });
-  }
-
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const id = req.body.targetId * 1;
   let data = req.body.data;
-  if (!data) {
-    return res.status(400).json({ msg: "arguments 'data' is undefined" });
+  if (!lectureId || isNaN(id) || !data) {
+    return res.status(400).json({ msg: "Bad Request" });
   }
 
   try {
     const query = {
       _id: lectureId,
-      epliogue: { $elemMatch: { id: id, writerId: null } },
+      epliogue: { $elemMatch: { id: id, author: req.user } },
     };
     const update = { $set: { "epliogue.$.value": data } };
     const updateResult = await lectureModel.updateOne(query, update);
@@ -157,11 +120,9 @@ export const putEpliogue = async (req, res) => {
 };
 
 export const recommendation = async (req, res) => {
-  //임시로 body.id로 userId 받아옴, 추후 변경할것
-  const userId = req.body.userId;
-
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const targetId = req.params.targetId * 1;
+  const userId = req.user;
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const targetId = req.body.targetId * 1;
   if (!lectureId || isNaN(targetId)) {
     return res.status(400).json({ msg: "Bad Request" });
   }

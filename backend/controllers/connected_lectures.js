@@ -28,7 +28,7 @@ const argumentsCheck = async (url, description, lectureId) => {
 
 //  /:lectureId
 export const getConnectedLecture = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
   try {
     const query = { _id: lectureId };
     const select = { connected_lecture: 1, _id: 0 };
@@ -48,19 +48,11 @@ export const getConnectedLecture = async (req, res) => {
   }
 };
 
-//관련강의를 추가한다.
-//
-//URL 매개변수
-//lectureId : 관련강의를 추가할 강좌 추천글의 ObjectId
-//
-//Body 매개변수
-//url : 관련강의의 Url
-//description : 관련강의에 대한 설명
 export const postConnectedLecutre = async (req, res) => {
   const args = await argumentsCheck(
     req.body.url,
     req.body.description,
-    req.params.lectureId
+    req.body.lectureId
   );
   if (!args.valid) {
     return res.status(400).json({ msg: "Bad Request" });
@@ -89,8 +81,8 @@ export const postConnectedLecutre = async (req, res) => {
       id: id,
       lectureId: args.connectedLectureId,
       description: args.description,
-      writerId: null,
-      writeTime: new Date(),
+      author: req.user,
+      createAt: new Date(),
       //TODO: 선행, 후행 이름 바꿀것
       recommendation_before: 0,
       recommendation_before_users: [],
@@ -111,22 +103,13 @@ export const postConnectedLecutre = async (req, res) => {
   }
 };
 
-//관련강의를 수정한다.
-//
-//URL 매개변수
-//lectureId : 관련강의를 수정할 강좌 추천글의 ObjectId
-//targetId : 수정할 관련강의의 id
-//
-//Body 매개변수
-//url : 관련강의의 Url
-//description : 관련강의에 대한 설명
 export const putConnectedLecture = async (req, res) => {
   const args = await argumentsCheck(
     req.body.url,
     req.body.description,
-    req.params.lectureId
+    req.body.lectureId
   );
-  const targetId = req.params.targetId * 1;
+  const targetId = req.body.targetId * 1;
   if (!args.valid || isNaN(targetId)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
@@ -137,7 +120,7 @@ export const putConnectedLecture = async (req, res) => {
   try {
     const query = {
       _id: args.lectureId,
-      connected_lecture: { $elemMatch: { id: targetId, writerId: null } },
+      connected_lecture: { $elemMatch: { id: targetId, author: req.user } },
     };
     const update = {
       $set: {
@@ -156,17 +139,9 @@ export const putConnectedLecture = async (req, res) => {
   }
 };
 
-//관련강의를 삭제한다.
-//
-//URL 매개변수
-//lectureId : 관련강의를 삭제할 강좌 추천글의 ObjectId
-//targetId : 삭제할 관련강의의 id
-//
-//Body 매개변수
-//
 export const deleteConnectedLecture = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const targetId = req.params.targetId * 1;
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const targetId = req.body.targetId * 1;
   if (!lectureId || isNaN(targetId)) {
     return res.status(400).json({ msg: "Bad Request" });
   }
@@ -177,7 +152,7 @@ export const deleteConnectedLecture = async (req, res) => {
       $pull: {
         connected_lecture: {
           id: targetId,
-          writerId: null,
+          author: req.user,
         },
       },
     };
@@ -197,18 +172,15 @@ export const deleteConnectedLecture = async (req, res) => {
   }
 };
 
-export const recommendationBefore = async (req, res) => {
-  //임시로 body.id로 userId 받아옴, 추후 변경할것
-  const userId = req.body.userId;
+export const recommendation = async (req, res) => {
+  const userId = req.user;
+  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const targetId = req.body.targetId * 1;
 
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const targetId = req.params.targetId * 1;
-  if (!lectureId || isNaN(targetId)) {
-    return res.status(400).json({ msg: "Bad Request" });
-  }
-
-  try {
-    const query = {
+  let query = null;
+  let update = null;
+  if (req.body.mode === "before") {
+    query = {
       _id: lectureId,
       connected_lecture: {
         $elemMatch: {
@@ -217,7 +189,7 @@ export const recommendationBefore = async (req, res) => {
         },
       },
     };
-    const update = {
+    update = {
       $inc: {
         "connected_lecture.$.recommendation_before": 1,
       },
@@ -225,29 +197,8 @@ export const recommendationBefore = async (req, res) => {
         "connected_lecture.$.recommendation_before_users": userId,
       },
     };
-    const result = await lectureModel.updateOne(query, update);
-    if (!result.n) {
-      return res.status(404).json({ msg: "Failure" });
-    }
-    res.status(200).json({ msg: "success" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Internal Server Error" });
-  }
-};
-
-export const recommendationAfter = async (req, res) => {
-  //임시로 body.id로 userId 받아옴, 추후 변경할것
-  const userId = req.body.userId;
-
-  const lectureId = tryConvertToObjectId(req.params.lectureId);
-  const targetId = req.params.targetId * 1;
-  if (!lectureId || isNaN(targetId)) {
-    return res.status(400).json({ msg: "Bad Request" });
-  }
-
-  try {
-    const query = {
+  } else if (req.body.mode === "after") {
+    query = {
       _id: lectureId,
       connected_lecture: {
         $elemMatch: {
@@ -256,7 +207,7 @@ export const recommendationAfter = async (req, res) => {
         },
       },
     };
-    const update = {
+    update = {
       $inc: {
         "connected_lecture.$.recommendation_after": 1,
       },
@@ -264,6 +215,13 @@ export const recommendationAfter = async (req, res) => {
         "connected_lecture.$.recommendation_after_users": userId,
       },
     };
+  }
+
+  if (!lectureId || isNaN(targetId) || !query || !update) {
+    return res.status(400).json({ msg: "Bad Request" });
+  }
+
+  try {
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
       return res.status(404).json({ msg: "Failure" });
