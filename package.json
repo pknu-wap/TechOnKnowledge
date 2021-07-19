@@ -4,7 +4,7 @@
   "description": "2021_WEB_TEAM1",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "server": "nodemon --exec babel-node init"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,27 @@
   "bugs": {
     "url": "https://github.com/pknu-wap/TechOnKnowledge/issues"
   },
-  "homepage": "https://github.com/pknu-wap/TechOnKnowledge#readme"
+  "homepage": "https://github.com/pknu-wap/TechOnKnowledge#readme",
+  "dependencies": {
+    "@babel/core": "^7.14.0",
+    "@babel/node": "^7.13.13",
+    "@babel/preset-env": "^7.14.0",
+    "bcrypt": "^5.0.1",
+    "dotenv": "^8.5.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongod": "^2.0.0",
+    "mongoose": "^5.12.7",
+    "nodemon": "^2.0.7",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-kakao": "^1.0.1",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.2.1"
+  }
 }
