@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const LectureSchema = new mongoose.Schema({
   category: String,
@@ -10,9 +10,18 @@ const LectureSchema = new mongoose.Schema({
   term: Number,
   explain: String,
   hash_tag: Array,
-  recommandation: Number,
   epliogue: Array,
   connected_lecture: Array,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  recommendation: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Recommendation",
+    },
+  ],
   qna: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,8 +32,6 @@ const LectureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "LectureId",
   },
-  imageSrc: String,
-  time: Date, //작성시간 변수들 이름 통일하기
 });
 
 const model = mongoose.model("Lecture", LectureSchema);

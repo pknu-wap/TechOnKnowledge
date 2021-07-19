@@ -5,9 +5,12 @@ const SIGNUP = "/signup";
 const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
-const LECTURE = "/lecture/:lectureId";
-const SEARCH = "/search/:lectureId";
+const SEARCH = "/search/:content";
 const CHANGE_PASSWORD = "/change-password";
+
+//lecture
+const LECTURE = "/lecture";
+const RECOMMEND_LECTURE = "/recommend";
 const UPLOAD_LECTURE = "/upload-lecture";
 const ADD_CURRICULUM = "/add-curriculum";
 const EPLIOGUE = "/epliogue";
@@ -36,7 +39,7 @@ const RECOMMENDATION_AFTER_CONNECTED_LECTURE = "/recommendation-after/:lectureId
 
 //Kakao
 
-const KAKAO = "/auth/Kakao";
+const KAKAO = "/auth/kakao";
 const KAKAO_CALLBACK = "/auth/github/callback";
 
 const routes = {
@@ -46,7 +49,6 @@ const routes = {
   mypage: MYPAGE,
   writing: WRITING,
   lecture: LECTURE,
-  search: SEARCH,
   kakao: KAKAO,
   kakaoCallback: KAKAO_CALLBACK,
   logout: LOGOUT,
@@ -75,6 +77,11 @@ const routes = {
   deleteConnectedLecture: DELETE_CONNECTED_LECTURE,
   recommendationAfterConnectedLecture: RECOMMENDATION_AFTER_CONNECTED_LECTURE,
   recommendationBeforeConnectedLecture: RECOMMENDATION_BEFORE_CONNECTED_LECTURE,
+  search: (content) => {
+    if (content) return `/search/${content}`;
+    else return SEARCH;
+  },
+  recommendLecture: RECOMMEND_LECTURE,
 };
 
 export default routes;

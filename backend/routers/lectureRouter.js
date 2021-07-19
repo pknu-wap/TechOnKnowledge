@@ -1,14 +1,16 @@
 import express from "express";
 import {
-  getLectureInfo,
   postAddCurriculum,
+  postRecommend,
   postUploadLecture,
-} from "../controllers/lecture";
+  getLectureInfo,
+} from "../controllers/lectureController";
 import routes from "../routes";
 
 const lectureRouter = express.Router({ mergeParams: true });
 
 lectureRouter.post(routes.uploadLecture, postUploadLecture);
+lectureRouter.post(routes.recommendLecture, postRecommend);
 lectureRouter.post(routes.addCurriculum, postAddCurriculum);
 lectureRouter.get("/", getLectureInfo);
 
