@@ -10,8 +10,14 @@ const LectureSchema = new mongoose.Schema({
   term: Number,
   explain: String,
   hash_tag: Array,
-  epliogue: Array,
-  connected_lecture: Array,
+  epliogue: {
+    type: Array,
+    default: [],
+  },
+  connected_lecture: {
+    type: Array,
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
