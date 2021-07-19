@@ -4,27 +4,23 @@ import {
   postConnectedLecutre,
   putConnectedLecture,
   deleteConnectedLecture,
-  recommendationBefore,
-  recommendationAfter,
+  recommendation,
 } from "../controllers/connected_lectures";
+import { auth } from "../middleware";
 import routes from "../routes";
 
 const connectedLectureRouter = express.Router();
 
-connectedLectureRouter.get(routes.getConnectedLecture, getConnectedLecture);
-connectedLectureRouter.post(routes.postConnectedLecture, postConnectedLecutre);
-connectedLectureRouter.put(routes.putConnectedLecture, putConnectedLecture);
-connectedLectureRouter.delete(
-  routes.deleteConnectedLecture,
-  deleteConnectedLecture
-);
+connectedLectureRouter.get("/", getConnectedLecture);
+
+connectedLectureRouter.all("/", auth);
+connectedLectureRouter.post("/", postConnectedLecutre);
+connectedLectureRouter.put("/", putConnectedLecture);
+connectedLectureRouter.delete("/", deleteConnectedLecture);
 connectedLectureRouter.post(
-  routes.recommendationBeforeConnectedLecture,
-  recommendationBefore
-);
-connectedLectureRouter.post(
-  routes.recommendationAfterConnectedLecture,
-  recommendationAfter
+  routes.recommendConnectedLecture,
+  auth,
+  recommendation
 );
 
 export default connectedLectureRouter;

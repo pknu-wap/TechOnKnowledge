@@ -4,14 +4,19 @@ import {
   postEpliogue,
   putEpliogue,
   deleteEpliogue,
+  recommendation,
 } from "../controllers/epliogues";
+import { auth } from "../middleware";
 import routes from "../routes";
 
 const epliogueRouter = express.Router();
 
-epliogueRouter.get(routes.getEpliogue, getEpliogue);
-epliogueRouter.post(routes.postEpliogue, postEpliogue);
-epliogueRouter.put(routes.putEpliogue, putEpliogue);
-epliogueRouter.delete(routes.deleteEpliogue, deleteEpliogue);
+epliogueRouter.get("/", getEpliogue);
+
+epliogueRouter.all("/", auth);
+epliogueRouter.post("/", postEpliogue);
+epliogueRouter.put("/", putEpliogue);
+epliogueRouter.delete("/", deleteEpliogue);
+epliogueRouter.post(routes.recommendEpliogue, auth, recommendation);
 
 export default epliogueRouter;

@@ -5,13 +5,16 @@ import {
   putQuestion,
   deleteQuestion,
 } from "../controllers/questions";
+import { auth } from "../middleware";
 import routes from "../routes";
 
 const questionRouter = express.Router();
 
-questionRouter.get(routes.getQnA, getQuestion);
-questionRouter.post(routes.postQuestion, postQuestion);
-questionRouter.put(routes.putQuestion, putQuestion);
-questionRouter.delete(routes.deleteQuestion, deleteQuestion);
+questionRouter.get("/", getQuestion);
+
+questionRouter.all("/", auth);
+questionRouter.post("/", postQuestion);
+questionRouter.put("/", putQuestion);
+questionRouter.delete("/", deleteQuestion);
 
 export default questionRouter;
