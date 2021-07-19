@@ -4,7 +4,8 @@
 
 ## To do list
 
-- [x] Use mongoDB(with mongoose)
-- [x] User authentication(use passport)
-- [ ] Upload new lecture API
+- [ ] passport with JWT
+- [ ] Search API
+- [ ] post Recommend API
+
 - [ ] Add curriculum API

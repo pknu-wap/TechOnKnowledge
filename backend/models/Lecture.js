@@ -18,13 +18,13 @@ const LectureSchema = new mongoose.Schema({
   recommendation: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Recommend",
+      ref: "Recommendation",
     },
   ],
   connected_lecture: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Lecture",
+      ref: "connected_Lecture",
     },
   ],
   qna: [

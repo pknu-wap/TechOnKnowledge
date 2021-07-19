@@ -20,15 +20,17 @@
     "@babel/core": "^7.14.0",
     "@babel/node": "^7.13.13",
     "@babel/preset-env": "^7.14.0",
+    "bcrypt": "^5.0.1",
     "dotenv": "^8.5.1",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongod": "^2.0.0",
     "mongoose": "^5.12.7",
     "nodemon": "^2.0.7",
     "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
     "passport-kakao": "^1.0.1",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^6.1.0"
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^7.25.0",

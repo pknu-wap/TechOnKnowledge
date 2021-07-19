@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const RecommendSchema = new mongoose.Schema({
   count: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   recommend_person: [
     {
@@ -13,6 +13,6 @@ const RecommendSchema = new mongoose.Schema({
   ],
 });
 
-const model = mongoose.model("Recommend", RecommendSchema);
+const model = mongoose.model("Recommendation", RecommendSchema);
 
 export default model;

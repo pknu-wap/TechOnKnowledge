@@ -16,7 +16,7 @@ const ADD_CURRICULUM = "/add-curriculum";
 
 //Kakao
 
-const KAKAO = "/auth/Kakao";
+const KAKAO = "/auth/kakao";
 const KAKAO_CALLBACK = "/auth/github/callback";
 
 const routes = {

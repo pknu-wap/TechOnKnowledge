@@ -6,15 +6,17 @@ import {
   postChangePassword,
   postJoin,
   postKakaoLogIn,
+  postLogin,
   search,
 } from "../controllers/userController";
+import { auth } from "../middleware";
 import routes from "../routes";
 
 const globalRouter = express.Router();
 
-globalRouter.post(routes.signin, postJoin);
-globalRouter.post(routes.signup, postJoin);
-globalRouter.get(routes.logout, logout);
+globalRouter.post(routes.signin, postLogin);
+globalRouter.post(routes.signup, postJoin, postLogin);
+globalRouter.get(routes.logout, auth, logout);
 globalRouter.post(routes.changePassword, postChangePassword);
 
 globalRouter.get(routes.search(), search);
