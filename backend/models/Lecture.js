@@ -9,8 +9,15 @@ const LectureSchema = new mongoose.Schema({
   fee: Number,
   term: Number,
   explain: String,
-  hash_tag: String,
-  eplilogue: String,
+  hash_tag: Array,
+  epliogue: {
+    type: Array,
+    default: [],
+  },
+  connected_lecture: {
+    type: Array,
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -19,12 +26,6 @@ const LectureSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Recommendation",
-    },
-  ],
-  connected_lecture: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "connected_Lecture",
     },
   ],
   qna: [
