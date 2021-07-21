@@ -11,16 +11,13 @@ import routes from "../routes";
 
 const connectedLectureRouter = express.Router();
 
-connectedLectureRouter.get("/", getConnectedLecture);
-
-connectedLectureRouter.all("/", auth);
-connectedLectureRouter.post("/", postConnectedLecutre);
-connectedLectureRouter.put("/", putConnectedLecture);
-connectedLectureRouter.delete("/", deleteConnectedLecture);
-connectedLectureRouter.post(
-  routes.recommendConnectedLecture,
-  auth,
-  recommendation
-);
+//no require auth
+connectedLectureRouter.get(routes.home, getConnectedLecture);
+//require auth
+connectedLectureRouter.use(routes.home, auth);
+connectedLectureRouter.post(routes.home, postConnectedLecutre);
+connectedLectureRouter.put(routes.home, putConnectedLecture);
+connectedLectureRouter.delete(routes.home, deleteConnectedLecture);
+connectedLectureRouter.post(routes.recommendConnectedLecture, recommendation);
 
 export default connectedLectureRouter;

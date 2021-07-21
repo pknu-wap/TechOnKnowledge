@@ -11,12 +11,13 @@ import routes from "../routes";
 
 const epliogueRouter = express.Router();
 
-epliogueRouter.get("/", getEpliogue);
-
-epliogueRouter.all("/", auth);
-epliogueRouter.post("/", postEpliogue);
-epliogueRouter.put("/", putEpliogue);
-epliogueRouter.delete("/", deleteEpliogue);
-epliogueRouter.post(routes.recommendEpliogue, auth, recommendation);
+//no require auth
+epliogueRouter.get(routes.home, getEpliogue);
+//require auth
+epliogueRouter.use(routes.home, auth);
+epliogueRouter.post(routes.home, postEpliogue);
+epliogueRouter.put(routes.home, putEpliogue);
+epliogueRouter.delete(routes.home, deleteEpliogue);
+epliogueRouter.post(routes.recommendEpliogue, recommendation);
 
 export default epliogueRouter;

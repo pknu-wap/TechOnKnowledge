@@ -12,6 +12,6 @@ const lectureRouter = express.Router();
 lectureRouter.post(routes.uploadLecture, postUploadLecture);
 lectureRouter.post(routes.recommendLecture, postRecommend);
 lectureRouter.post(routes.addCurriculum, postAddCurriculum);
-lectureRouter.get("/", getLectureInfo);
+lectureRouter.get(routes.home, getLectureInfo);
 
 export default lectureRouter;
