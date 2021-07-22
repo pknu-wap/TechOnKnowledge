@@ -61,6 +61,10 @@ const JWTVerify = async (jwtPayload, done) => {
 passport.use("jwt", new JWTStrategy(JWTConfig, JWTVerify));
 passport.use("local", new localStrategy(passportConfig, verifyUser));
 
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
 passport.use(
   new kakaoStrategy(
     {

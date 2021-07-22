@@ -4,7 +4,6 @@ const UserSchema = new mongoose.Schema({
   email: String,
   password: String,
   kakaoId: Number,
-  naverId: Number,
   interesting_category: String,
   inclass: [
     {

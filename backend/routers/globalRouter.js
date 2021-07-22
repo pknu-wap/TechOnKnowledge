@@ -21,7 +21,7 @@ globalRouter.post(routes.changePassword, postChangePassword);
 
 globalRouter.get(routes.search(), search);
 
-globalRouter.get(routes.kakao, kakaoLogin);
+globalRouter.get(routes.kakao, kakaoLogin); //필요없을듯
 
 globalRouter.get(
   routes.kakaoCallback,

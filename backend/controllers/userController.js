@@ -58,6 +58,11 @@ export const postJoin = async (req, res, next) => {
   });
 };
 
+function issuedToken(user) {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+  return token;
+}
+
 export const postLogin = async (req, res, next) => {
   console.log("postLogin");
   try {
@@ -75,12 +80,7 @@ export const postLogin = async (req, res, next) => {
           return;
         }
         // 클라이언트에게 JWT생성 후 반환
-        console.log(user.id);
-        console.log(user.email);
-        const token = jwt.sign(
-          { id: user.id, email: user.email },
-          process.env.JWT_SECRET
-        );
+        const token = issuedToken(user);
         res.json({ token });
       });
     })(req, res);
@@ -91,12 +91,14 @@ export const postLogin = async (req, res, next) => {
 };
 
 export const postKakaoLogIn = (req, res) => {
-  res.redirect("http://localhost:3000");
+  const { user } = req;
+  const token = issuedToken(user);
+  res.json({ token });
 };
 
 export const kakaoLoginCallback = async (_, __, profile, cb) => {
   const {
-    _json: { id, name, email },
+    _json: { id, email },
   } = profile;
   try {
     const user = await User.findOne({ email });
@@ -107,7 +109,6 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
     }
     const newUser = await User.create({
       email,
-      name,
       kakaoId: id,
     });
     return cb(null, newUser);
