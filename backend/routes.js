@@ -10,7 +10,8 @@ const CHANGE_PASSWORD = "/change-password";
 
 //lecture
 const LECTURE = "/lecture";
-const RECOMMEND_LECTURE = "/recommend";
+const PLUS_RECOMMEND_LECTURE = "/recommend-plus";
+const MINUS_RECOMMEND_LECTURE = "/recommend-minus";
 const UPLOAD_LECTURE = "/upload-lecture";
 const ADD_CURRICULUM = "/add-curriculum";
 
@@ -36,7 +37,8 @@ const routes = {
     if (content) return `/search/${content}`;
     else return SEARCH;
   },
-  recommendLecture: RECOMMEND_LECTURE,
+  plusRecommendLecture: PLUS_RECOMMEND_LECTURE,
+  minusRecommendLecture: MINUS_RECOMMEND_LECTURE,
 };
 
 export default routes;

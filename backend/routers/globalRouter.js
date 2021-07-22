@@ -17,7 +17,7 @@ const globalRouter = express.Router();
 globalRouter.post(routes.signin, postLogin);
 globalRouter.post(routes.signup, postJoin, postLogin);
 globalRouter.get(routes.logout, auth, logout);
-globalRouter.post(routes.changePassword, postChangePassword);
+globalRouter.post(routes.changePassword, auth, postChangePassword);
 
 globalRouter.get(routes.search(), search);
 

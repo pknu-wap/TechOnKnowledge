@@ -120,8 +120,7 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
 export const kakaoLogin = passport.authenticate("kakao");
 
 export const logout = (req, res) => {
-  console.log(req.user);
-  req.logout();
+  res.end();
 };
 
 export const postChangePassword = async (req, res) => {

@@ -4,8 +4,11 @@
 
 ## To do list
 
-- [ ] passport with JWT
+- [x] passport with JWT
+- [ ] jwt exp
 - [ ] Search API
-- [ ] post Recommend API
+- [x] post Recommend API
+- [ ] load lecture sorting category
+- [ ] fix lecture
 
 - [ ] Add curriculum API

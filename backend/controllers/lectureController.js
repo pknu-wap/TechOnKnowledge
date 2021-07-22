@@ -1,5 +1,4 @@
 import Lecture from "../models/Lecture";
-import Recommend from "../models/Recommendation";
 import Curriculum from "../models/Curriculum";
 
 export const postUploadLecture = async (req, res) => {
@@ -26,24 +25,51 @@ export const postUploadLecture = async (req, res) => {
     term,
     explain,
     hash_tag,
+    lecture_creator: req.user.id,
   });
   newLecture.save((err) => {
     if (err) console.error("Oops! failed to save data...");
     else console.log("Data seved successfully!");
   });
+  res.end();
 };
 
-export const postRecommend = async (req, res) => {  //미완성
+export const postPlusRecommend = async (req, res) => {
   const {
-    body: { lectureId, userId },
+    body: { lectureId },
+    user,
   } = req;
-  console.log(lectureId);
-  console.log(userId);
   try {
-    const lecture = await Lecture.findById(lectureId).populate(
-      "recommendation"
+    const lecture = await Lecture.findById(lectureId);
+    if (lecture) {
+      lecture.recommend_people.push(user.id);
+      lecture.recommend_count = lecture.recommend_people.length;
+      lecture.save();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  res.end();
+};
+
+export const postMinusRecommend = async (req, res) => {
+  const {
+    body: { lectureId },
+    user,
+  } = req;
+  try {
+    await Lecture.updateOne(
+      { _id: lectureId },
+      { $pull: { recommend_people: user.id } }
     );
-    console.log(lecture.recommendation);
+    const lecture = await Lecture.findById(lectureId);
+    if (lecture) {
+      lecture.recommend_count = lecture.recommend_people.length;
+      console.log(lecture);
+      lecture.save();
+    } else {
+      res.error("error");
+    }
   } catch (error) {
     console.log(error);
   }

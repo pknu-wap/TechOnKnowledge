@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const LectureSchema = new mongoose.Schema({
   category: String,
@@ -11,16 +11,21 @@ const LectureSchema = new mongoose.Schema({
   explain: String,
   hash_tag: String,
   eplilogue: String,
+  lecture_creator: mongoose.Schema.Types.ObjectId,
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  recommendation: [
+  recommend_count: {
+    type: Number,
+    default: 0,
+  },
+  recommend_people: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Recommendation",
     },
   ],
+
   connected_lecture: [
     {
       type: mongoose.Schema.Types.ObjectId,
