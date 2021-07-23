@@ -34,7 +34,9 @@ export const postJoin = async (req, res, next) => {
 };
 
 function issuedToken(user) {
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "1 day",
+  });
   return token;
 }
 
