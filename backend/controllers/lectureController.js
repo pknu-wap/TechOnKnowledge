@@ -1,6 +1,65 @@
 import Lecture from "../models/Lecture";
 import Curriculum from "../models/Curriculum";
 
+export const search = async (req, res) => {
+  let {
+    params: { content: subject }, //title, teacher, hash tag
+    query: { searchingBy, page, sort, category },
+  } = req;
+  if (searchingBy === undefined)
+    res.status(400).send({ error: "검색어를 입력하세요" });
+  else {
+    if (page === undefined) page = 1;
+    if (sort === undefined) sort = "recommend_count";
+    if (category === undefined) category = "";
+    const skip_number = (page - 1) * 9;
+    const lectures_per_page = 9;
+    let lectures = [];
+    try {
+      lectures = await Lecture.find({
+        [subject]: { $regex: searchingBy, $options: "i" },
+        category: { $regex: category },
+      })
+        .skip(skip_number)
+        .limit(lectures_per_page)
+        .sort({ [sort]: -1 });
+      console.log(lectures);
+    } catch (error) {
+      console.log(error);
+    }
+    res.json({ lectures });
+  }
+};
+
+export const getLecture = async (req, res) => {
+  let {
+    query: { category, page, sort },
+  } = req;
+  if (category === undefined) category = "";
+  if (sort === undefined) sort = "recommend_count";
+  if (page === undefined) page = 1;
+  const skip_number = (page - 1) * 9;
+  const lectures_per_page = 9;
+  let lectures = [];
+  try {
+    lectures = await Lecture.find({ category: { $regex: category } })
+      .skip(skip_number)
+      .limit(lectures_per_page)
+      .sort({ [sort]: -1 });
+    res.json({ lectures });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLectureInformation = async (req, res) => {
+  const {
+    query: { lectureId },
+  } = req;
+  const lecture = await Lecture.findById(lectureId);
+  res.send(lecture);
+};
+
 export const postUploadLecture = async (req, res) => {
   const {
     body: {
@@ -84,14 +143,6 @@ export const postAddCurriculum = async (req, res) => {
     if (err) console.error("failed to save curriculum data");
     else console.log("curriculum data is saved");
   });
-};
-
-export const getLecture = async (req, res) => {
-  let {
-    query: { lectureId },
-  } = req;
-  const lecture = await Lecture.findById(lectureId);
-  res.send(lecture);
 };
 
 export const modifyLecture = async (req, res) => {

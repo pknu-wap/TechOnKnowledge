@@ -5,11 +5,11 @@ const SIGNUP = "/signup";
 const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
-const SEARCH = "/search/:content";
 const CHANGE_PASSWORD = "/change-password";
 
 //lecture
 const LECTURE = "/lecture";
+const SEARCH = "/search/:content";
 const PLUS_RECOMMEND_LECTURE = "/recommend-plus";
 const MINUS_RECOMMEND_LECTURE = "/recommend-minus";
 const UPLOAD_LECTURE = "/upload-lecture";

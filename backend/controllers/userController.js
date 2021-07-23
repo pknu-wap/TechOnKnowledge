@@ -1,33 +1,8 @@
 import passport from "passport";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-import Lecture from "../models/Lecture";
 import bcrypt from "bcrypt";
 import routes from "../routes";
-
-export const search = async (req, res) => {
-  //미완성
-  let {
-    params: { content: subject }, //title, teacher
-    query: { content: searchingBy, page, sort },
-  } = req;
-  if (page === undefined) page = 1;
-  if (sort === undefined) sort = "popular";
-  console.log(subject);
-  console.log(searchingBy);
-  console.log(page);
-  console.log(sort);
-  let lectures = [];
-  try {
-    lectures = await Lecture.find({
-      subject: { $regex: searchingBy, $options: "i" },
-    }).sort({ sort: -1 });
-    //sort랑 slice 가 안됐음
-  } catch (error) {
-    console.log(error);
-  }
-  res.send(lectures);
-};
 
 export const postJoin = async (req, res, next) => {
   const {
