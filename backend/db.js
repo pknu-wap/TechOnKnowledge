@@ -3,12 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// mongoose.connect(process.env.MONGO_URL, {
-//   useNewUrlParser: true,
-//   useFindAndModify: false,
-// });
-
-mongoose.connect("mongodb://localhost/test", {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useFindAndModify: false,
 });
