@@ -1,15 +1,14 @@
 import lectureModel from "../models/Lecture";
 import QnAModel from "../models/QnA";
-import { tryConvertToObjectId } from "./filter";
+import { getArgs, ARGUMENTS } from "./filter";
 
 export const getQuestion = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.body.lectureId);
-  if (!lectureId) {
-    //lectureId가 유효하지 않은 형식(ObjectId로 변환 불가능)
-    return res.status(400).json({ msg: "Bad Request" });
+  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
+  if (!args) {
+    return;
   }
   try {
-    const lectureFindQuery = { _id: lectureId };
+    const lectureFindQuery = { _id: args[ARGUMENTS.LECTUREID.name] };
     const lecture = await lectureModel.findOne(lectureFindQuery).lean();
     if (!lecture) {
       //lectureId에 매핑되는 Document가 없음
@@ -17,7 +16,7 @@ export const getQuestion = async (req, res) => {
     }
     const qnaFindQuery = { _id: { $in: lecture.qna } };
     const qna = await QnAModel.find(qnaFindQuery).lean();
-    res.status(200).json(qna);
+    res.status(200).json({ msg: "Success", contents: qna });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -25,20 +24,20 @@ export const getQuestion = async (req, res) => {
 };
 
 export const postQuestion = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.body.lectureId);
-  let question = req.body.question;
-  if (!lectureId || !question) {
-    return res.status(400).json({ msg: "Bad Request" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID, ARGUMENTS.DATA]);
+  if (!args) {
+    return;
   }
 
   const document = new QnAModel({
-    question: question,
-    author: req.user,
+    question: args[ARGUMENTS.DATA.name],
+    author: userId,
     answer: [],
   });
 
   try {
-    const query = { _id: lectureId };
+    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const update = { $push: { qna: document._id } };
     const result = await lectureModel.updateOne(query, update).lean();
     if (!result) {
@@ -46,7 +45,7 @@ export const postQuestion = async (req, res) => {
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
     await document.save();
-    res.status(200).json({ msg: "Success" });
+    res.status(201).json({ msg: "Success", contentsId: document._id });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -54,15 +53,15 @@ export const postQuestion = async (req, res) => {
 };
 
 export const putQuestion = async (req, res) => {
-  const QnAId = tryConvertToObjectId(req.body.QnAId);
-  let newQuestion = req.body.question;
-  if (!QnAId || !newQuestion) {
-    return res.status(400).json({ msg: "Bad Request" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [ARGUMENTS.QNAID, ARGUMENTS.DATA]);
+  if (!args) {
+    return;
   }
 
   try {
-    const query = { _id: QnAId, author: req.user };
-    const update = { $set: { question: newQuestion } };
+    const query = { _id: args[ARGUMENTS.QNAID.name], author: userId };
+    const update = { $set: { question: args[ARGUMENTS.DATA.name] } };
     const result = await QnAModel.updateOne(query, update).lean();
     if (result.n) {
       res.status(200).json({ msg: "Success" });
@@ -76,22 +75,22 @@ export const putQuestion = async (req, res) => {
 };
 
 export const deleteQuestion = async (req, res) => {
-  const QnAId = tryConvertToObjectId(req.body.QnAId);
-  if (!QnAId) {
-    //QnAId가 유효하지 않은 형식(ObjectId로 변환 불가능)
-    return res.status(400).json({ msg: "Bad Request" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [ARGUMENTS.QNAID]);
+  if (!args) {
+    return;
   }
 
   try {
-    const QnAQuery = { _id: QnAId };
-    const lectureQuery = { qna: QnAId };
-    const lectureUpdate = { $pull: { qna: QnAId } };
+    const QnAQuery = { _id: args[ARGUMENTS.QNAID.name] };
+    const lectureQuery = { qna: args[ARGUMENTS.QNAID.name] };
+    const lectureUpdate = { $pull: { qna: args[ARGUMENTS.QNAID.name] } };
     const QnADocument = await QnAModel.findOne(QnAQuery);
     if (!QnADocument) {
       //QnAId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "QnA Not Found" });
     }
-    if (QnADocument.author != req.user) {
+    if (String(QnADocument.author) != String(userId)) {
       return res.status(400).json({ msg: "Author Info Unmatch" });
     }
     await QnADocument.remove();
@@ -102,7 +101,7 @@ export const deleteQuestion = async (req, res) => {
       // lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
-    res.status(200).json({ msg: "Success" });
+    res.status(204).send();
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });

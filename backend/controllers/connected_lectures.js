@@ -1,36 +1,13 @@
 import lectureModel from "../models/Lecture";
-import { parseObjectId, tryConvertToObjectId } from "./filter";
+import { ARGUMENTS, getArgs } from "./filter";
 
-const argumentsCheck = async (url, description, lectureId) => {
-  let desc = description ? description : null;
-  let result = {
-    connectedLectureId: parseObjectId(url),
-    lectureId: tryConvertToObjectId(lectureId),
-    description: desc,
-    valid: false,
-    error: false,
-  };
-  if (result.lectureId && result.connectedLectureId && result.description) {
-    try {
-      //check if Connected-Lecture exist
-      const query = { _id: result.connectedLectureId };
-      const lecture = await lectureModel.findOne(query);
-      if (lecture) {
-        result.valid = true;
-      }
-    } catch (err) {
-      result.error = true;
-      result.errorlog = err;
-    }
-  }
-  return result;
-};
-
-//  /:lectureId
 export const getConnectedLecture = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.body.lectureId);
+  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
+  if (!args) {
+    return;
+  }
   try {
-    const query = { _id: lectureId };
+    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const select = { connected_lecture: 1, _id: 0 };
     let documents = await lectureModel.findOne(query, select).lean();
     const length = documents.connected_lecture.length;
@@ -41,7 +18,9 @@ export const getConnectedLecture = async (req, res) => {
       let result = await lectureModel.findOne(titleQuery);
       documents.connected_lecture[i].lectureTitle = result.title;
     }
-    res.status(200).json(documents.connected_lecture);
+    res
+      .status(200)
+      .json({ msg: "Success", contents: documents.connected_lecture });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -49,24 +28,21 @@ export const getConnectedLecture = async (req, res) => {
 };
 
 export const postConnectedLecutre = async (req, res) => {
-  const args = await argumentsCheck(
-    req.body.url,
-    req.body.description,
-    req.body.lectureId
-  );
-  if (!args.valid) {
-    return res.status(400).json({ msg: "Bad Request" });
-  }
-  if (args.error) {
-    console.log(args.errorlog);
-    return res.status(500).json({ msg: "Internal Server Error" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.CONNECTEDLECTUREID,
+    ARGUMENTS.DESCRIPTION,
+  ]);
+  if (!args) {
+    return;
   }
   try {
     const aggregateQuery = [
       {
         $project: { connected_lecture: { $slice: ["$connected_lecture", -1] } },
       },
-      { $match: { _id: args.lectureId } },
+      { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
     if (aggResult.length === 0) {
@@ -79,9 +55,9 @@ export const postConnectedLecutre = async (req, res) => {
     }
     const document = {
       id: id,
-      lectureId: args.connectedLectureId,
-      description: args.description,
-      author: req.user,
+      lectureId: args[ARGUMENTS.CONNECTEDLECTUREID.name],
+      description: args[ARGUMENTS.DESCRIPTION.name],
+      author: userId,
       createAt: new Date(),
       //TODO: 선행, 후행 이름 바꿀것
       recommendation_before: 0,
@@ -89,14 +65,14 @@ export const postConnectedLecutre = async (req, res) => {
       recommendation_after: 0,
       recommendation_after_users: [],
     };
-    const query = { _id: args.lectureId };
+    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const update = { $push: { connected_lecture: document } };
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
       //lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
-    res.status(200).json({ msg: "success" });
+    res.status(201).json({ msg: "Success", contentsId: id });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -104,35 +80,34 @@ export const postConnectedLecutre = async (req, res) => {
 };
 
 export const putConnectedLecture = async (req, res) => {
-  const args = await argumentsCheck(
-    req.body.url,
-    req.body.description,
-    req.body.lectureId
-  );
-  const targetId = req.body.targetId * 1;
-  if (!args.valid || isNaN(targetId)) {
-    return res.status(400).json({ msg: "Bad Request" });
-  }
-  if (args.error) {
-    console.log(args.errorlog);
-    return res.status(500).json({ msg: "Internal Server Error" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.CONNECTEDLECTUREID,
+    ARGUMENTS.DESCRIPTION,
+    ARGUMENTS.TARGETID,
+  ]);
+  if (!args) {
+    return;
   }
   try {
     const query = {
-      _id: args.lectureId,
-      connected_lecture: { $elemMatch: { id: targetId, author: req.user } },
+      _id: args[ARGUMENTS.LECTUREID.name],
+      connected_lecture: {
+        $elemMatch: { id: args[ARGUMENTS.TARGETID.name], author: userId },
+      },
     };
     const update = {
       $set: {
-        "connected_lecture.$.lectureId": args.connectedLectureId,
-        "connected_lecture.$.description": args.description,
+        "connected_lecture.$.lectureId": args[ARGUMENTS.CONNECTEDLECTUREID.name],
+        "connected_lecture.$.description": args[ARGUMENTS.DESCRIPTION.name],
       },
     };
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
       return res.status(404).json({ msg: "failure" });
     }
-    res.status(200).json({ msg: "success" });
+    res.status(200).json({ msg: "Success" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -140,19 +115,21 @@ export const putConnectedLecture = async (req, res) => {
 };
 
 export const deleteConnectedLecture = async (req, res) => {
-  const lectureId = tryConvertToObjectId(req.body.lectureId);
-  const targetId = req.body.targetId * 1;
-  if (!lectureId || isNaN(targetId)) {
-    return res.status(400).json({ msg: "Bad Request" });
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.TARGETID,
+  ]);
+  if (!args) {
+    return;
   }
-
   try {
-    const query = { _id: lectureId };
+    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const update = {
       $pull: {
         connected_lecture: {
-          id: targetId,
-          author: req.user,
+          id: args[ARGUMENTS.TARGETID.name],
+          author: userId,
         },
       },
     };
@@ -165,7 +142,7 @@ export const deleteConnectedLecture = async (req, res) => {
       //삭제 실패
       return res.status(400).json({ msg: "Failure" });
     }
-    res.status(200).json({ msg: "success" });
+    res.status(204).send();
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -173,52 +150,101 @@ export const deleteConnectedLecture = async (req, res) => {
 };
 
 export const recommendation = async (req, res) => {
-  const userId = req.user;
-  const lectureId = tryConvertToObjectId(req.body.lectureId);
-  const targetId = req.body.targetId * 1;
-
-  let query = null;
-  let update = null;
-  if (req.body.mode === "before") {
-    query = {
-      _id: lectureId,
-      connected_lecture: {
-        $elemMatch: {
-          id: targetId,
-          recommendation_before_users: { $nin: [userId] },
-        },
-      },
-    };
-    update = {
-      $inc: {
-        "connected_lecture.$.recommendation_before": 1,
-      },
-      $addToSet: {
-        "connected_lecture.$.recommendation_before_users": userId,
-      },
-    };
-  } else if (req.body.mode === "after") {
-    query = {
-      _id: lectureId,
-      connected_lecture: {
-        $elemMatch: {
-          id: targetId,
-          recommendation_after_users: { $nin: [userId] },
-        },
-      },
-    };
-    update = {
-      $inc: {
-        "connected_lecture.$.recommendation_after": 1,
-      },
-      $addToSet: {
-        "connected_lecture.$.recommendation_after_users": userId,
-      },
-    };
+  const userId = req.user._id;
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.TARGETID,
+  ]);
+  if (!args) {
+    return;
   }
 
-  if (!lectureId || isNaN(targetId) || !query || !update) {
-    return res.status(400).json({ msg: "Bad Request" });
+  const recommendQuery = {
+    before_recommend: {
+      query: {
+        _id: args[ARGUMENTS.LECTUREID.name],
+        connected_lecture: {
+          $elemMatch: {
+            id: args[ARGUMENTS.TARGETID.name],
+            recommendation_before_users: { $nin: [userId] },
+          },
+        },
+      },
+      update: {
+        $inc: {
+          "connected_lecture.$.recommendation_before": 1,
+        },
+        $addToSet: {
+          "connected_lecture.$.recommendation_before_users": userId,
+        },
+      },
+    },
+    before_cancel: {
+      query: {
+        _id: args[ARGUMENTS.LECTUREID.name],
+        connected_lecture: {
+          $elemMatch: {
+            id: args[ARGUMENTS.TARGETID.name],
+            recommendation_before_users: { $in: [userId] },
+          },
+        },
+      },
+      update: {
+        $inc: {
+          "connected_lecture.$.recommendation_before": -1,
+        },
+        $pull: {
+          "connected_lecture.$.recommendation_before_users": userId,
+        },
+      },
+    },
+    after_recommend: {
+      query: {
+        _id: args[ARGUMENTS.LECTUREID.name],
+        connected_lecture: {
+          $elemMatch: {
+            id: args[ARGUMENTS.TARGETID.name],
+            recommendation_after_users: { $nin: [userId] },
+          },
+        },
+      },
+      update: {
+        $inc: {
+          "connected_lecture.$.recommendation_after": 1,
+        },
+        $addToSet: {
+          "connected_lecture.$.recommendation_after_users": userId,
+        },
+      },
+    },
+    after_cancel: {
+      query: {
+        _id: args[ARGUMENTS.LECTUREID.name],
+        connected_lecture: {
+          $elemMatch: {
+            id: args[ARGUMENTS.TARGETID.name],
+            recommendation_after_users: { $in: [userId] },
+          },
+        },
+      },
+      update: {
+        $inc: {
+          "connected_lecture.$.recommendation_after": -1,
+        },
+        $pull: {
+          "connected_lecture.$.recommendation_after_users": userId,
+        },
+      },
+    },
+  };
+  try {
+    var query = recommendQuery[req.body.mode].query;
+    var update = recommendQuery[req.body.mode].update;
+  } catch (err) {
+    return res.status(400).json({
+      msg:
+        "Unvalid 'body.mode' values : Only allowed 'before_recommend', 'before_cancel', 'after_recommend', 'after_cancel'",
+    });
   }
 
   try {
@@ -226,7 +252,7 @@ export const recommendation = async (req, res) => {
     if (!result.n) {
       return res.status(404).json({ msg: "Failure" });
     }
-    res.status(200).json({ msg: "success" });
+    res.status(200).json({ msg: "Success" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });

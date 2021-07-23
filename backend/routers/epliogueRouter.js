@@ -6,15 +6,16 @@ import {
   deleteEpliogue,
   recommendation,
 } from "../controllers/epliogues";
-import { auth } from "../middleware";
+import { auth, checkAuth } from "../middleware";
 import routes from "../routes";
 
 const epliogueRouter = express.Router();
 
-//no require auth
+epliogueRouter.use(routes.home, auth);
+//no require auth(optional)
 epliogueRouter.get(routes.home, getEpliogue);
 //require auth
-epliogueRouter.use(routes.home, auth);
+epliogueRouter.use(routes.home, checkAuth);
 epliogueRouter.post(routes.home, postEpliogue);
 epliogueRouter.put(routes.home, putEpliogue);
 epliogueRouter.delete(routes.home, deleteEpliogue);
