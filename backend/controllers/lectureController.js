@@ -86,21 +86,43 @@ export const postAddCurriculum = async (req, res) => {
   });
 };
 
-// if (lecture === undefined) {
-//   const newRecommend = await Recommend.create({
-//     recommend_person: userId,
-//   });
-//   // newRecommend.save((err) => {
-//   //   if (err) console.log("fail to save recommend");
-//   // });
-//   Lecture.findOneAndUpdate(
-//     { _id: lectureId },
-//     { $push: { recommendation: newRecommend.id } },
-//     (err, doc) => {
-//       if (err) {
-//         console.log(err);
-//       }
-//       console.log(doc);
-//     }
-//   );
-// }
+export const getLecture = async (req, res) => {
+  let {
+    query: { lectureId },
+  } = req;
+  const lecture = await Lecture.findById(lectureId);
+  res.send(lecture);
+};
+
+export const modifyLecture = async (req, res) => {
+  const {
+    body: {
+      lectureId,
+      category,
+      level,
+      title,
+      link,
+      teacher,
+      fee,
+      term,
+      explain,
+      hash_tag,
+    },
+  } = req;
+  const lecture = await Lecture.findOneAndUpdate(
+    { _id: lectureId },
+    {
+      category,
+      level,
+      title,
+      link,
+      teacher,
+      fee,
+      term,
+      explain,
+      hash_tag,
+    }
+  );
+  lecture.save();
+  res.end();
+};

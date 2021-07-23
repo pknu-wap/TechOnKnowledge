@@ -14,6 +14,7 @@ const PLUS_RECOMMEND_LECTURE = "/recommend-plus";
 const MINUS_RECOMMEND_LECTURE = "/recommend-minus";
 const UPLOAD_LECTURE = "/upload-lecture";
 const ADD_CURRICULUM = "/add-curriculum";
+const MODIFY = "/modify";
 
 //Kakao
 
@@ -39,6 +40,7 @@ const routes = {
   },
   plusRecommendLecture: PLUS_RECOMMEND_LECTURE,
   minusRecommendLecture: MINUS_RECOMMEND_LECTURE,
+  modify: MODIFY,
 };
 
 export default routes;

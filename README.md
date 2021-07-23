@@ -4,11 +4,11 @@
 
 ## To do list
 
-- [x] passport with JWT
+- [x] passport with JWT // 7/19
 - [ ] jwt exp
 - [ ] Search API
-- [x] post Recommend API
+- [x] post Recommend API // 7/21
 - [ ] load lecture sorting category
-- [ ] fix lecture
+- [x] fix lecture
 
 - [ ] Add curriculum API

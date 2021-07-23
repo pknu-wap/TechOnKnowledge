@@ -4,6 +4,8 @@ import {
   postPlusRecommend,
   postMinusRecommend,
   postUploadLecture,
+  modifyLecture,
+  getLecture,
 } from "../controllers/lectureController";
 import { auth } from "../middleware";
 import routes from "../routes";
@@ -15,5 +17,6 @@ lectureRouter.post(routes.plusRecommendLecture, auth, postPlusRecommend);
 lectureRouter.post(routes.minusRecommendLecture, auth, postMinusRecommend);
 
 lectureRouter.post(routes.addCurriculum, auth, postAddCurriculum);
-
+lectureRouter.get(routes.modify, getLecture);
+lectureRouter.put(routes.modify, modifyLecture);
 export default lectureRouter;
