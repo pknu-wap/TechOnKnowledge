@@ -34,14 +34,13 @@ const checkIsLectureExist = async (str) => {
 export const getArgs = async (req, res, list) => {
   let result = {};
   try {
-    for (const info of list) {
-      result[info.name] = info.filter
-        ? await info.filter(req[info.path][info.name])
-        : req[info.path][info.name];
-      if (result[info.name] === null || result[info.name] === undefined) {
-        res.status(400).json({
-          msg: `Unvalid arguments '${info.path}.${info.name}' : ${req[info.path][info.name]}`,
-        });
+    for (const argType of list) {
+      const { name, field, filter, failedMsg } = argType;
+      result[name] = filter ? await filter(req[field][name]) : req[field][name];
+      if (result[name] === null || result[name] === undefined) {
+        const defaultMsg = `Unvalid arguments {${field}.${name} : ${req[field][name]}}`;
+        const msg = failedMsg ? `${defaultMsg} : ${failedMsg}` : defaultMsg;
+        res.status(400).json({ msg: msg });
         return null;
       }
     }
@@ -55,17 +54,17 @@ export const getArgs = async (req, res, list) => {
 export const ARGUMENTS = {
   LECTUREID: {
     name: "lectureId",
-    path: "query",
+    field: "query",
     filter: tryConvertToObjectId,
   },
   QNAID: {
     name: "QnAId",
-    path: "query",
+    field: "query",
     filter: tryConvertToObjectId,
   },
   TARGETID: {
     name: "targetId",
-    path: "query",
+    field: "query",
     filter: async (x) => {
       x *= 1;
       return isNaN(x) ? null : x;
@@ -73,17 +72,17 @@ export const ARGUMENTS = {
   },
   DATA: {
     name: "data",
-    path: "body",
+    field: "body",
     filter: null,
   },
   DESCRIPTION: {
     name: "description",
-    path: "body",
+    field: "body",
     filter: null,
   },
   CONNECTEDLECTUREID: {
     name: "connectedLectureId",
-    path: "body",
+    field: "body",
     filter: checkIsLectureExist,
   },
 };
