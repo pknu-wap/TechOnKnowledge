@@ -5,16 +5,15 @@ import {
   putQuestion,
   deleteQuestion,
 } from "../controllers/questions";
-import { auth, checkAuth } from "../middleware";
+import { auth } from "../middleware";
 import routes from "../routes";
 
 const questionRouter = express.Router();
 
-questionRouter.use(routes.home, auth);
-//no require auth(optional)
+//no require auth
 questionRouter.get(routes.home, getQuestion);
 //require auth
-questionRouter.use(routes.home, checkAuth);
+questionRouter.use(routes.home, auth);
 questionRouter.post(routes.home, postQuestion);
 questionRouter.put(routes.home, putQuestion);
 questionRouter.delete(routes.home, deleteQuestion);
