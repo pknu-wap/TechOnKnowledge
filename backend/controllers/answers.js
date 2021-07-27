@@ -59,7 +59,7 @@ export const putAnswer = async (req, res) => {
     const update = { $set: { "answer.$.data": args[ARGUMENTS.DATA.name] } };
     const updateResult = await QnAModel.updateOne(query, update);
     if (!updateResult.n) {
-      return res.status(404).json({ msg: "Failure" });
+      return res.status(400).json({ msg: "Failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {
@@ -86,7 +86,7 @@ export const deleteAnswer = async (req, res) => {
       return res.status(404).json({ msg: "QnA Not Found" });
     }
     if (!updateResult.nModified) {
-      return res.status(404).json({ msg: "Failure" });
+      return res.status(400).json({ msg: "Failure" });
     }
     res.status(204).send();
   } catch (err) {

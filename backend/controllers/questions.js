@@ -66,7 +66,7 @@ export const putQuestion = async (req, res) => {
     if (result.n) {
       res.status(200).json({ msg: "Success" });
     } else {
-      res.status(404).json({ msg: "Failure" });
+      res.status(400).json({ msg: "Failure" });
     }
   } catch (err) {
     console.log(err);

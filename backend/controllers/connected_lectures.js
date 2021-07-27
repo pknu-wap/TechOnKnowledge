@@ -10,6 +10,10 @@ export const getConnectedLecture = async (req, res) => {
     const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const select = { connected_lecture: 1, _id: 0 };
     let documents = await lectureModel.findOne(query, select).lean();
+    if (!documents) {
+      //lectureId에 매핑되는 Document가 없음
+      return res.status(404).json({ msg: "Lecture Not Found" });
+    }
     const length = documents.connected_lecture.length;
     //
     //documents 상태 : {connected_lecture: [connected_lecture documents...] }
@@ -105,7 +109,7 @@ export const putConnectedLecture = async (req, res) => {
     };
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
-      return res.status(404).json({ msg: "failure" });
+      return res.status(400).json({ msg: "failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {
@@ -250,7 +254,7 @@ export const recommendation = async (req, res) => {
   try {
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
-      return res.status(404).json({ msg: "Failure" });
+      return res.status(400).json({ msg: "Failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {

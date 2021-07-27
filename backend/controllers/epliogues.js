@@ -10,6 +10,10 @@ export const getEpliogue = async (req, res) => {
   try {
     const query = { _id: args[ARGUMENTS.LECTUREID.name] };
     const result = await lectureModel.findOne(query).lean();
+    if (!result) {
+      //lectureId에 매핑되는 Document가 없음
+      return res.status(404).json({ msg: "Lecture Not Found" });
+    }
     return res.status(200).json({ contents: result.epliogue, msg: "Success" });
   } catch (err) {
     console.log(err);
@@ -85,7 +89,7 @@ export const deleteEpliogue = async (req, res) => {
     }
     if (!updateResult.nModified) {
       //epliogueId에 매핑되는 Epliogue가 없거나, 작성자 미일치
-      return res.status(404).json({ msg: "failure" });
+      return res.status(400).json({ msg: "failure" });
     }
     res.status(204).send();
   } catch (err) {
@@ -189,7 +193,7 @@ export const recommendation = async (req, res) => {
   try {
     const result = await lectureModel.updateOne(query, update);
     if (!result.n) {
-      return res.status(404).json({ msg: "Failure" });
+      return res.status(400).json({ msg: "Failure" });
     }
     res.status(200).json({ msg: "Success" });
   } catch (err) {
