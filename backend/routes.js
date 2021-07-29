@@ -48,15 +48,11 @@ const routes = {
     if (content) return `/search/${content}`;
     else return SEARCH;
   },
-<<<<<<< HEAD
-  recommendLecture: RECOMMEND_LECTURE,
-  recommendEpliogue: EPLIOGUE_RECOMMEND,
-  recommendConnectedLecture: CONNECTED_LECTURE_RECOMMEND,
-=======
   plusRecommendLecture: PLUS_RECOMMEND_LECTURE,
   minusRecommendLecture: MINUS_RECOMMEND_LECTURE,
+  recommendEpliogue: EPLIOGUE_RECOMMEND,
+  recommendConnectedLecture: CONNECTED_LECTURE_RECOMMEND,
   modify: MODIFY,
->>>>>>> origin/yup
 };
 
 export default routes;
