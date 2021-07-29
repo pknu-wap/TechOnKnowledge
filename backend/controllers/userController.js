@@ -1,33 +1,8 @@
 import passport from "passport";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-import Lecture from "../models/Lecture";
 import bcrypt from "bcrypt";
 import routes from "../routes";
-
-export const search = async (req, res) => {
-  //미완성
-  let {
-    params: { content: subject }, //title, teacher
-    query: { content: searchingBy, page, sort },
-  } = req;
-  if (page === undefined) page = 1;
-  if (sort === undefined) sort = "popular";
-  console.log(subject);
-  console.log(searchingBy);
-  console.log(page);
-  console.log(sort);
-  let lectures = [];
-  try {
-    lectures = await Lecture.find({
-      subject: { $regex: searchingBy, $options: "i" },
-    }).sort({ sort: -1 });
-    //sort랑 slice 가 안됐음
-  } catch (error) {
-    console.log(error);
-  }
-  res.send(lectures);
-};
 
 export const postJoin = async (req, res, next) => {
   const {
@@ -58,6 +33,13 @@ export const postJoin = async (req, res, next) => {
   });
 };
 
+function issuedToken(user) {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "1 day",
+  });
+  return token;
+}
+
 export const postLogin = async (req, res, next) => {
   console.log("postLogin");
   try {
@@ -75,12 +57,7 @@ export const postLogin = async (req, res, next) => {
           return;
         }
         // 클라이언트에게 JWT생성 후 반환
-        console.log(user.id);
-        console.log(user.email);
-        const token = jwt.sign(
-          { id: user.id, email: user.email },
-          process.env.JWT_SECRET
-        );
+        const token = issuedToken(user);
         res.json({ token });
       });
     })(req, res);
@@ -91,12 +68,14 @@ export const postLogin = async (req, res, next) => {
 };
 
 export const postKakaoLogIn = (req, res) => {
-  res.redirect("http://localhost:3000");
+  const { user } = req;
+  const token = issuedToken(user);
+  res.json({ token });
 };
 
 export const kakaoLoginCallback = async (_, __, profile, cb) => {
   const {
-    _json: { id, name, email },
+    _json: { id, email },
   } = profile;
   try {
     const user = await User.findOne({ email });
@@ -107,7 +86,6 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
     }
     const newUser = await User.create({
       email,
-      name,
       kakaoId: id,
     });
     return cb(null, newUser);
@@ -119,8 +97,7 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
 export const kakaoLogin = passport.authenticate("kakao");
 
 export const logout = (req, res) => {
-  console.log(req.user);
-  req.logout();
+  res.end();
 };
 
 export const postChangePassword = async (req, res) => {

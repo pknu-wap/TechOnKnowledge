@@ -41,7 +41,6 @@ const JWTConfig = {
 };
 
 const JWTVerify = async (jwtPayload, done) => {
-  console.log("JWTV");
   try {
     // payload의 id값으로 유저의 데이터 조회
     const user = await User.findOne({ _id: jwtPayload.id });
@@ -60,6 +59,10 @@ const JWTVerify = async (jwtPayload, done) => {
 
 passport.use("jwt", new JWTStrategy(JWTConfig, JWTVerify));
 passport.use("local", new localStrategy(passportConfig, verifyUser));
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
 
 passport.use(
   new kakaoStrategy(

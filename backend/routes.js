@@ -5,12 +5,13 @@ const SIGNUP = "/signup";
 const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
-const SEARCH = "/search/:content";
 const CHANGE_PASSWORD = "/change-password";
 
 //lecture
 const LECTURE = "/lecture";
-const RECOMMEND_LECTURE = "/recommend";
+const SEARCH = "/search/:content";
+const PLUS_RECOMMEND_LECTURE = "/recommend-plus";
+const MINUS_RECOMMEND_LECTURE = "/recommend-minus";
 const UPLOAD_LECTURE = "/upload-lecture";
 const ADD_CURRICULUM = "/add-curriculum";
 const EPLIOGUE = "/epliogue";
@@ -19,11 +20,12 @@ const QNA = "/qna";
 const QNA_ANSWER = "/qna-answer";
 const CONNECTED_LECTURE = "/connected-lecture";
 const CONNECTED_LECTURE_RECOMMEND = "/recommend";
+const MODIFY = "/modify";
 
 //Kakao
 
 const KAKAO = "/auth/kakao";
-const KAKAO_CALLBACK = "/auth/github/callback";
+const KAKAO_CALLBACK = "/auth/kakao/callback";
 
 const routes = {
   home: HOME,
@@ -46,9 +48,15 @@ const routes = {
     if (content) return `/search/${content}`;
     else return SEARCH;
   },
+<<<<<<< HEAD
   recommendLecture: RECOMMEND_LECTURE,
   recommendEpliogue: EPLIOGUE_RECOMMEND,
   recommendConnectedLecture: CONNECTED_LECTURE_RECOMMEND,
+=======
+  plusRecommendLecture: PLUS_RECOMMEND_LECTURE,
+  minusRecommendLecture: MINUS_RECOMMEND_LECTURE,
+  modify: MODIFY,
+>>>>>>> origin/yup
 };
 
 export default routes;
