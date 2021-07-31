@@ -29,7 +29,7 @@ const checkIsLectureExist = async (str) => {
   } catch (err) {
     return null;
   }
-}
+};
 
 export const getArgs = async (req, res, list) => {
   let result = {};

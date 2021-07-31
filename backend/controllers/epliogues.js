@@ -15,6 +15,9 @@ export const getEpliogue = async (req, res) => {
   if (!args) {
     return;
   }
+  if (req.user) {
+    var userId = String(req.user._id);
+  }
 
   try {
     const query = { _id: args[ARGUMENTS.LECTUREID.name] };
@@ -22,6 +25,19 @@ export const getEpliogue = async (req, res) => {
     if (!result) {
       //lectureId에 매핑되는 Document가 없음
       return res.status(404).json({ msg: "Lecture Not Found" });
+    }
+    const length = result.epliogue.length;
+    for (let i = 0; i < length; ++i) {
+      result.epliogue[i].is_recommended = false;
+      if (userId) {
+        for (let recommendedUserId of result.epliogue[i].recommendation_users) {
+          if (userId === String(recommendedUserId)) {
+            result.epliogue[i].is_recommended = true;
+            break;
+          }
+        }
+      }
+      delete result.epliogue[i].recommendation_users;
     }
     return res.status(200).json({ contents: result.epliogue, msg: "Success" });
   } catch (err) {

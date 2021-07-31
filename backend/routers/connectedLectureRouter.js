@@ -6,13 +6,13 @@ import {
   deleteConnectedLecture,
   recommendation,
 } from "../controllers/connected_lectures";
-import { auth } from "../middleware";
+import { auth, tryAuth } from "../middleware";
 import routes from "../routes";
 
 const connectedLectureRouter = express.Router();
 
 //no require auth
-connectedLectureRouter.get(routes.home, getConnectedLecture);
+connectedLectureRouter.get(routes.home, tryAuth, getConnectedLecture);
 //require auth
 connectedLectureRouter.use(routes.home, auth);
 connectedLectureRouter.post(routes.home, postConnectedLecutre);

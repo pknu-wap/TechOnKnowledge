@@ -3,7 +3,7 @@ import { ARGUMENTS, getArgs } from "./filter";
 
 // {
 //   id: Number,
-//   lectureId: objectId,
+//   lectureId: objectId, //관련강의의 id
 //   description: String,
 //   author: objectId,
 //   createAt: Date,
@@ -17,6 +17,9 @@ export const getConnectedLecture = async (req, res) => {
   const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
   if (!args) {
     return;
+  }
+  if (req.user) {
+    var userId = String(req.user._id);
   }
   try {
     const query = { _id: args[ARGUMENTS.LECTUREID.name] };
@@ -33,6 +36,28 @@ export const getConnectedLecture = async (req, res) => {
       let titleQuery = { _id: documents.connected_lecture[i].lectureId };
       let result = await lectureModel.findOne(titleQuery);
       documents.connected_lecture[i].lectureTitle = result.title;
+      documents.connected_lecture[i].is_recommended_before = false;
+      documents.connected_lecture[i].is_recommended_after = false;
+
+      if (userId) {
+        for (let recommendedUserId of documents.connected_lecture[i]
+          .recommendation_before_users) {
+          if (userId === String(recommendedUserId)) {
+            documents.connected_lecture[i].is_recommended_before = true;
+            break;
+          }
+        }
+        for (let recommendedUserId of documents.connected_lecture[i]
+          .recommendation_after_users) {
+          if (userId === String(recommendedUserId)) {
+            documents.connected_lecture[i].is_recommended_after = true;
+            break;
+          }
+        }
+      }
+
+      delete documents.connected_lecture[i].recommendation_before_users;
+      delete documents.connected_lecture[i].recommendation_after_users;
     }
     res
       .status(200)
@@ -75,7 +100,6 @@ export const postConnectedLecutre = async (req, res) => {
       description: args[ARGUMENTS.DESCRIPTION.name],
       author: userId,
       createAt: new Date(),
-      //TODO: 선행, 후행 이름 바꿀것
       recommendation_before: 0,
       recommendation_before_users: [],
       recommendation_after: 0,

@@ -3,8 +3,10 @@ import QnAModel from "../models/QnA";
 import { getArgs, ARGUMENTS } from "./filter";
 
 // {
+//   _id: objectId,
 //   question: String
 //   author: objectId,
+//   createdAt: Date,
 //   answer: [
 //     {
 //       author: objectId,
@@ -14,7 +16,6 @@ import { getArgs, ARGUMENTS } from "./filter";
 //     }
 //   ],
 // }
-
 
 export const getQuestion = async (req, res) => {
   const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
