@@ -1,7 +1,65 @@
 import Lecture from "../models/Lecture";
-import Recommend from "../models/Recommendation";
 import Curriculum from "../models/Curriculum";
 import { getArgs, ARGUMENTS } from "./filter";
+
+export const search = async (req, res) => {
+  let {
+    params: { content: subject }, //title, teacher, hash tag
+    query: { searchingBy, page, sort, category },
+  } = req;
+  if (searchingBy === undefined)
+    res.status(400).send({ error: "검색어를 입력하세요" });
+  else {
+    if (page === undefined) page = 1;
+    if (sort === undefined) sort = "recommend_count";
+    if (category === undefined) category = "";
+    const skip_number = (page - 1) * 9;
+    const lectures_per_page = 9;
+    let lectures = [];
+    try {
+      lectures = await Lecture.find({
+        [subject]: { $regex: searchingBy, $options: "i" },
+        category: { $regex: category },
+      })
+        .skip(skip_number)
+        .limit(lectures_per_page)
+        .sort({ [sort]: -1 });
+      console.log(lectures);
+    } catch (error) {
+      console.log(error);
+    }
+    res.json({ lectures });
+  }
+};
+
+export const getLecture = async (req, res) => {
+  let {
+    query: { category, page, sort },
+  } = req;
+  if (category === undefined) category = "";
+  if (sort === undefined) sort = "recommend_count";
+  if (page === undefined) page = 1;
+  const skip_number = (page - 1) * 9;
+  const lectures_per_page = 9;
+  let lectures = [];
+  try {
+    lectures = await Lecture.find({ category: { $regex: category } })
+      .skip(skip_number)
+      .limit(lectures_per_page)
+      .sort({ [sort]: -1 });
+    res.json({ lectures });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLectureInformation = async (req, res) => {
+  const {
+    query: { lectureId },
+  } = req;
+  const lecture = await Lecture.findById(lectureId);
+  res.send(lecture);
+};
 
 export const postUploadLecture = async (req, res) => {
   const {
@@ -27,25 +85,52 @@ export const postUploadLecture = async (req, res) => {
     term,
     explain,
     hash_tag,
+    lecture_creator: req.user.id,
   });
   newLecture.save((err) => {
     if (err) console.error("Oops! failed to save data...");
     else console.log("Data seved successfully!");
     res.status(200).json(newLecture);
   });
+  res.end();
 };
 
-export const postRecommend = async (req, res) => {  //미완성
+export const postPlusRecommend = async (req, res) => {
   const {
-    body: { lectureId, userId },
+    body: { lectureId },
+    user,
   } = req;
-  console.log(lectureId);
-  console.log(userId);
   try {
-    const lecture = await Lecture.findById(lectureId).populate(
-      "recommendation"
+    const lecture = await Lecture.findById(lectureId);
+    if (lecture) {
+      lecture.recommend_people.push(user.id);
+      lecture.recommend_count = lecture.recommend_people.length;
+      lecture.save();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  res.end();
+};
+
+export const postMinusRecommend = async (req, res) => {
+  const {
+    body: { lectureId },
+    user,
+  } = req;
+  try {
+    await Lecture.updateOne(
+      { _id: lectureId },
+      { $pull: { recommend_people: user.id } }
     );
-    console.log(lecture.recommendation);
+    const lecture = await Lecture.findById(lectureId);
+    if (lecture) {
+      lecture.recommend_count = lecture.recommend_people.length;
+      console.log(lecture);
+      lecture.save();
+    } else {
+      res.error("error");
+    }
   } catch (error) {
     console.log(error);
   }
@@ -62,40 +147,35 @@ export const postAddCurriculum = async (req, res) => {
   });
 };
 
-export const getLectureInfo = async (req, res) => {
-  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
-  if (!args) {
-    return;
-  }
-  try {
-    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
-    const select = { qna: 0, connected_lecture: 0, curriculum: 0, epliogue: 0 };
-    const lecture = await Lecture.findOne(query, select).lean();
-    if (!lecture) {
-      //lectureId에 매핑되는 Document가 없음
-      return res.status(404).json({ msg: "Lecture Not Found" });
+export const modifyLecture = async (req, res) => {
+  const {
+    body: {
+      lectureId,
+      category,
+      level,
+      title,
+      link,
+      teacher,
+      fee,
+      term,
+      explain,
+      hash_tag,
+    },
+  } = req;
+  const lecture = await Lecture.findOneAndUpdate(
+    { _id: lectureId },
+    {
+      category,
+      level,
+      title,
+      link,
+      teacher,
+      fee,
+      term,
+      explain,
+      hash_tag,
     }
-    res.status(200).json({ msg: "Success", contents: lecture });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Internal Server Error" });
-  }
+  );
+  lecture.save();
+  res.end();
 };
-// if (lecture === undefined) {
-//   const newRecommend = await Recommend.create({
-//     recommend_person: userId,
-//   });
-//   // newRecommend.save((err) => {
-//   //   if (err) console.log("fail to save recommend");
-//   // });
-//   Lecture.findOneAndUpdate(
-//     { _id: lectureId },
-//     { $push: { recommendation: newRecommend.id } },
-//     (err, doc) => {
-//       if (err) {
-//         console.log(err);
-//       }
-//       console.log(doc);
-//     }
-//   );
-// }

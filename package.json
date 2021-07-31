@@ -21,6 +21,7 @@
     "@babel/node": "^7.13.13",
     "@babel/preset-env": "^7.14.0",
     "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
     "dotenv": "^8.5.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
