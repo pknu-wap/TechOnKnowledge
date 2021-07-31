@@ -1,6 +1,15 @@
 import lectureModel from "../models/Lecture";
 import { ARGUMENTS, getArgs } from "./filter";
 
+// {
+//   data: String,
+//   id: Number,
+//   author: objectId,
+//   createdAt: Date,
+//   recommendation: Number,
+//   is_recommended : Boolean,  //추천 여부
+// }
+
 export const getEpliogue = async (req, res) => {
   const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
   if (!args) {

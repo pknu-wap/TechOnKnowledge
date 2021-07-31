@@ -2,6 +2,20 @@ import lectureModel from "../models/Lecture";
 import QnAModel from "../models/QnA";
 import { getArgs, ARGUMENTS } from "./filter";
 
+// {
+//   question: String
+//   author: objectId,
+//   answer: [
+//     {
+//       author: objectId,
+//       createAt: Date,
+//       data: String
+//       id: Number,
+//     }
+//   ],
+// }
+
+
 export const getQuestion = async (req, res) => {
   const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
   if (!args) {

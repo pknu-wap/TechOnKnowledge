@@ -1,6 +1,18 @@
 import lectureModel from "../models/Lecture";
 import { ARGUMENTS, getArgs } from "./filter";
 
+// {
+//   id: Number,
+//   lectureId: objectId,
+//   description: String,
+//   author: objectId,
+//   createAt: Date,
+//   recommendation_before: Number
+//   is_recommended_before: Boolean,
+//   recommendation_after: Number,
+//   is_recommended_after: Boolean,
+// }
+
 export const getConnectedLecture = async (req, res) => {
   const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
   if (!args) {
