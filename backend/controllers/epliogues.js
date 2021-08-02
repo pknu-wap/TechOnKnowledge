@@ -45,9 +45,6 @@ export const getEpliogue = async (req, res) => {
       { $limit: limit },
     ];
     const result = await lectureModel.aggregate(query);
-    if (result.length === 0) {
-      return res.status(404).json({ msg: "Lecture Not Found" });
-    }
     //2중 오브젝트 상태를 단일 오브젝트 배열로 변환, property에 추천 여부 추가시킴
     const length = result.length;
     let epliogues = Array(length);
