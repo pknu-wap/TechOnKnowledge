@@ -31,7 +31,7 @@ export const getQuestion = async (req, res) => {
     }
     const qnaFindQuery = { _id: { $in: lecture.qna } };
     const qna = await QnAModel.find(qnaFindQuery).lean();
-    res.status(200).json({ msg: "Success", contents: qna });
+    res.status(200).json(qna);
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -109,13 +109,7 @@ export const deleteQuestion = async (req, res) => {
       return res.status(400).json({ msg: "Author Info Unmatch" });
     }
     await QnADocument.remove();
-    const updateResult = await lectureModel
-      .updateOne(lectureQuery, lectureUpdate)
-      .exec();
-    if (!updateResult) {
-      // lectureId에 매핑되는 Document가 없음
-      return res.status(404).json({ msg: "Lecture Not Found" });
-    }
+    await lectureModel.updateOne(lectureQuery, lectureUpdate).exec();
     res.status(204).send();
   } catch (err) {
     console.log(err);

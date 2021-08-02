@@ -14,7 +14,11 @@ import { ARGUMENTS, getArgs } from "./filter";
 // }
 
 export const getConnectedLecture = async (req, res) => {
-  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.SORTBY,
+    ARGUMENTS.PAGE,
+  ]);
   if (!args) {
     return;
   }
@@ -22,46 +26,60 @@ export const getConnectedLecture = async (req, res) => {
     var userId = String(req.user._id);
   }
   try {
-    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
-    const select = { connected_lecture: 1, _id: 0 };
-    let documents = await lectureModel.findOne(query, select).lean();
-    if (!documents) {
-      //lectureId에 매핑되는 Document가 없음
+    const limit = args[ARGUMENTS.PAGE.name] ? 10 : Infinity; //page당 document갯수 10
+    const skipDocuments = args[ARGUMENTS.PAGE.name]
+      ? (args[ARGUMENTS.PAGE.name] - 1) * limit
+      : 0;
+    let sort = null;
+    if (args[ARGUMENTS.SORTBY.name] === "older") {
+      sort = { "connected_lecture.createAt": 1 };
+    } else if (args[ARGUMENTS.SORTBY.name] === "recent") {
+      sort = { "connected_lecture.createAt": -1 };
+    }
+    const query = [
+      { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
+      { $project: { connected_lecture: 1, _id: 0 } },
+      { $unwind: "$connected_lecture" },
+      { $sort: sort },
+      { $skip: skipDocuments },
+      { $limit: limit },
+    ];
+    const result = await lectureModel.aggregate(query);
+    if (result.length === 0) {
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
-    const length = documents.connected_lecture.length;
-    //
-    //documents 상태 : {connected_lecture: [connected_lecture documents...] }
+    //2중 오브젝트 상태를 단일 오브젝트 배열로 변환, property에 추천 여부 추가시킴
+    const length = result.length;
+    let connectedLectures = Array(length);
     for (let i = 0; i < length; ++i) {
-      let titleQuery = { _id: documents.connected_lecture[i].lectureId };
+      let titleQuery = { _id: result[i].connected_lecture.lectureId };
       let result = await lectureModel.findOne(titleQuery);
-      documents.connected_lecture[i].lectureTitle = result.title;
-      documents.connected_lecture[i].is_recommended_before = false;
-      documents.connected_lecture[i].is_recommended_after = false;
+      result[i].connected_lecture.lectureTitle = result.title;
+      result[i].connected_lecture.is_recommended_before = false;
+      result[i].connected_lecture.is_recommended_after = false;
 
       if (userId) {
-        for (let recommendedUserId of documents.connected_lecture[i]
+        for (let recommendedUserId of result[i].connected_lecture
           .recommendation_before_users) {
           if (userId === String(recommendedUserId)) {
-            documents.connected_lecture[i].is_recommended_before = true;
+            result[i].connected_lecture.is_recommended_before = true;
             break;
           }
         }
-        for (let recommendedUserId of documents.connected_lecture[i]
+        for (let recommendedUserId of result[i].connected_lecture
           .recommendation_after_users) {
           if (userId === String(recommendedUserId)) {
-            documents.connected_lecture[i].is_recommended_after = true;
+            result[i].connected_lecture.is_recommended_after = true;
             break;
           }
         }
       }
 
-      delete documents.connected_lecture[i].recommendation_before_users;
-      delete documents.connected_lecture[i].recommendation_after_users;
+      delete result[i].connected_lecture.recommendation_before_users;
+      delete result[i].connected_lecture.recommendation_after_users;
+      connectedLectures[i] = result[i].connected_lecture;
     }
-    res
-      .status(200)
-      .json({ msg: "Success", contents: documents.connected_lecture });
+    res.status(200).json(connectedLectures);
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -80,10 +98,10 @@ export const postConnectedLecutre = async (req, res) => {
   }
   try {
     const aggregateQuery = [
+      { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
       {
         $project: { connected_lecture: { $slice: ["$connected_lecture", -1] } },
       },
-      { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
     if (aggResult.length === 0) {

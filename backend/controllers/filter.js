@@ -67,6 +67,9 @@ export const ARGUMENTS = {
     field: "query",
     filter: async (x) => {
       x *= 1;
+      if (x < 0) {
+        return null;
+      }
       return isNaN(x) ? null : x;
     },
   },
@@ -84,5 +87,43 @@ export const ARGUMENTS = {
     name: "connectedLectureId",
     field: "body",
     filter: checkIsLectureExist,
+  },
+  PAGE: {
+    name: "page",
+    field: "query",
+    filter: async (x) => {
+      if (x === undefined) {
+        return 0;
+      }
+      x *= 1;
+      if (x < 0) {
+        return null;
+      }
+      return isNaN(x) ? null : x;
+    },
+  },
+  SORTBY_EPLIOGUE: {
+    name: "sortBy",
+    field: "query",
+    filter: async (x) => {
+      const effectiveValue = ["older", "recent", "recommendation"];
+      if (x === undefined) {
+        x = effectiveValue[0];
+      }
+      return effectiveValue.includes(x) ? x : null;
+    },
+    failedMsg: "Only Allowed 'older', 'recent', 'recommendation'",
+  },
+  SORTBY: {
+    name: "sortBy",
+    field: "query",
+    filter: async (x) => {
+      const effectiveValue = ["older", "recent"];
+      if (x === undefined) {
+        x = effectiveValue[0];
+      }
+      return effectiveValue.includes(x) ? x : null;
+    },
+    failedMsg: "Only Allowed 'older', 'recent'",
   },
 };

@@ -11,7 +11,11 @@ import { ARGUMENTS, getArgs } from "./filter";
 // }
 
 export const getEpliogue = async (req, res) => {
-  const args = await getArgs(req, res, [ARGUMENTS.LECTUREID]);
+  const args = await getArgs(req, res, [
+    ARGUMENTS.LECTUREID,
+    ARGUMENTS.PAGE,
+    ARGUMENTS.SORTBY_EPLIOGUE,
+  ]);
   if (!args) {
     return;
   }
@@ -20,26 +24,47 @@ export const getEpliogue = async (req, res) => {
   }
 
   try {
-    const query = { _id: args[ARGUMENTS.LECTUREID.name] };
-    const result = await lectureModel.findOne(query).lean();
-    if (!result) {
-      //lectureId에 매핑되는 Document가 없음
+    const limit = args[ARGUMENTS.PAGE.name] ? 10 : Infinity; //page당 document갯수 10
+    const skipDocuments = args[ARGUMENTS.PAGE.name]
+      ? (args[ARGUMENTS.PAGE.name] - 1) * limit
+      : 0;
+    let sort = null;
+    if (args[ARGUMENTS.SORTBY_EPLIOGUE.name] === "older") {
+      sort = { "epliogue.createAt": 1 };
+    } else if (args[ARGUMENTS.SORTBY_EPLIOGUE.name] === "recent") {
+      sort = { "epliogue.createAt": -1 };
+    } else if (args[ARGUMENTS.SORTBY_EPLIOGUE.name] === "recommendation") {
+      sort = { "epliogue.recommendation": -1, "epliogue.createAt": 1 };
+    }
+    const query = [
+      { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
+      { $project: { epliogue: 1, _id: 0 } },
+      { $unwind: "$epliogue" },
+      { $sort: sort },
+      { $skip: skipDocuments },
+      { $limit: limit },
+    ];
+    const result = await lectureModel.aggregate(query);
+    if (result.length === 0) {
       return res.status(404).json({ msg: "Lecture Not Found" });
     }
-    const length = result.epliogue.length;
+    //2중 오브젝트 상태를 단일 오브젝트 배열로 변환, property에 추천 여부 추가시킴
+    const length = result.length;
+    let epliogues = Array(length);
     for (let i = 0; i < length; ++i) {
-      result.epliogue[i].is_recommended = false;
+      result[i].epliogue.is_recommended = false;
       if (userId) {
-        for (let recommendedUserId of result.epliogue[i].recommendation_users) {
+        for (let recommendedUserId of result[i].epliogue.recommendation_users) {
           if (userId === String(recommendedUserId)) {
-            result.epliogue[i].is_recommended = true;
+            result[i].epliogue.is_recommended = true;
             break;
           }
         }
       }
-      delete result.epliogue[i].recommendation_users;
+      delete result[i].epliogue.recommendation_users;
+      epliogues[i] = result[i].epliogue;
     }
-    return res.status(200).json({ contents: result.epliogue, msg: "Success" });
+    return res.status(200).json(epliogues);
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -56,8 +81,8 @@ export const postEpliogue = async (req, res) => {
   try {
     //Query 내용 : lectureId에 매핑되는 Documents에서 Epliogue의 마지막 element만 가져옴
     const aggregateQuery = [
-      { $project: { epliogue: { $slice: ["$epliogue", -1] } } },
       { $match: { _id: args[ARGUMENTS.LECTUREID.name] } },
+      { $project: { epliogue: { $slice: ["$epliogue", -1] } } },
     ];
     const aggResult = await lectureModel.aggregate(aggregateQuery);
     if (aggResult.length === 0) {
