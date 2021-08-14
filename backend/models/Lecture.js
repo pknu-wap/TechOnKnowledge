@@ -10,6 +10,8 @@ const LectureSchema = new mongoose.Schema({
   term: Number,
   explain: String,
   hash_tag: Array,
+  image: String,
+  
   epliogue: {
     type: Array,
     default: [],

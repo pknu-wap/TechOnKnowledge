@@ -73,7 +73,9 @@ export const postUploadLecture = async (req, res) => {
       term,
       explain,
       hash_tag,
+      pic
     },
+    file
   } = req;
   const newLecture = await Lecture.create({
     category,
@@ -86,11 +88,14 @@ export const postUploadLecture = async (req, res) => {
     explain,
     hash_tag,
     lecture_creator: req.user.id,
+    pic,
+    // image: file ? file.path : "default image"
+    image: file.path
   });
   newLecture.save((err) => {
     if (err) console.error("Oops! failed to save data...");
     else console.log("Data seved successfully!");
-    res.status(200).json(newLecture);
+    res.status(200).json({msg: "Success"});
   });
   res.end();
 };

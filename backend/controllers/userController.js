@@ -4,6 +4,19 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import routes from "../routes";
 
+const passwordEncryption = (user) => {
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) throw err;
+      user.password = hash;
+      user
+        .save()
+        .then((user) => res.json(user))
+        .catch((err) => console.log(err));
+    });
+  });
+}
+
 export const postJoin = async (req, res, next) => {
   const {
     body: { email, password },
@@ -19,16 +32,7 @@ export const postJoin = async (req, res, next) => {
         password,
       });
 
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          newUser
-            .save()
-            .then((user) => res.json(user))
-            .catch((err) => console.log(err));
-        });
-      });
+      passwordEncryption(newUser);
     }
   });
 };
@@ -106,9 +110,8 @@ export const postChangePassword = async (req, res) => {
   } = req;
   try {
     await req.user.changePassword(oldPassword, newPassword);
-    // res.redirect(routes.me);
+    passwordEncryption(req.user);
   } catch (error) {
     console.log(error);
-    // res.render(routes.changePassword);
   }
 };

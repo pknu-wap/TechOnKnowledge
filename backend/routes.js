@@ -21,6 +21,7 @@ const QNA_ANSWER = "/qna-answer";
 const CONNECTED_LECTURE = "/connected-lecture";
 const CONNECTED_LECTURE_RECOMMEND = "/recommend";
 const MODIFY = "/modify";
+const DETAIL = "/:lectureId/detail";
 
 //Kakao
 
@@ -53,6 +54,10 @@ const routes = {
   recommendEpliogue: EPLIOGUE_RECOMMEND,
   recommendConnectedLecture: CONNECTED_LECTURE_RECOMMEND,
   modify: MODIFY,
+  detail: (lectureId) => {
+    if(lectureId) return `/${lectureId}/detail`;
+    else return DETAIL;
+  }
 };
 
 export default routes;
