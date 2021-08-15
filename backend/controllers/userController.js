@@ -45,7 +45,6 @@ function issuedToken(user) {
 }
 
 export const postLogin = async (req, res, next) => {
-  console.log("postLogin");
   try {
     // 아까 local로 등록한 인증과정 실행
     passport.authenticate("local", (passportError, user, info) => {
@@ -104,11 +103,10 @@ export const postChangePassword = async (req, res) => {
   const {
     body: { newPassword },
   } = req;
-  console.log("pw");
   try {
     passwordEncryption(req.user, newPassword);
-    res.json("end");
   } catch (error) {
     console.log(error);
   }
+  res.json("end");
 };
