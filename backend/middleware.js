@@ -11,7 +11,7 @@ export const auth = async (req, res, next) => {
       req.user = user;
       next();
     } else {
-      res.end();
+      res.status(404).json({msg: "Failure"});
     }
   })(req, res, next);
 };

@@ -20,21 +20,26 @@ export const postJoin = async (req, res, next) => {
   const {
     body: { email, password },
   } = req;
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      return res.status(400).json({
-        email: "해당 이메일을 가진 사용자가 존재합니다.",
-      });
-    } else {
-      const newUser = new User({
-        email,
-        password,
-      });
-
-      passwordEncryption(newUser, password);
-      res.json("Success");
-    }
-  });
+  try{
+    User.findOne({ email }).then((user) => {
+      if (user) {
+        return res.status(400).json({
+          email: "해당 이메일을 가진 사용자가 존재합니다.",
+        });
+      } else {
+        const newUser = new User({
+          email,
+          password,
+        });
+  
+        passwordEncryption(newUser, password);
+        res.json("Success");
+      }
+    });
+  } catch(error){
+    console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
 };
 
 function issuedToken(user) {
@@ -107,6 +112,7 @@ export const postChangePassword = async (req, res) => {
     passwordEncryption(req.user, newPassword);
   } catch (error) {
     console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
   }
   res.json("end");
 };

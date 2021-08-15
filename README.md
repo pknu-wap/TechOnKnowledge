@@ -4,6 +4,4 @@
 
 ## To do list
 
-- [ ] change password(some error occur)
-
 - [ ] Add curriculum API
