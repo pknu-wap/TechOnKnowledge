@@ -2,7 +2,6 @@ import express from "express";
 import passport from "passport";
 import {
   kakaoLogin,
-  logout,
   postChangePassword,
   postJoin,
   postKakaoLogIn,
@@ -15,7 +14,6 @@ const globalRouter = express.Router();
 
 globalRouter.post(routes.signin, postLogin);
 globalRouter.post(routes.signup, postJoin, postLogin);
-globalRouter.get(routes.logout, auth, logout);
 globalRouter.post(routes.changePassword, auth, postChangePassword);
 
 globalRouter.get(routes.kakao, kakaoLogin); //필요없을듯

@@ -2,7 +2,6 @@
 const HOME = "/";
 const SIGNIN = "/signin";
 const SIGNUP = "/signup";
-const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
 const CHANGE_PASSWORD = "/change-password";
@@ -21,6 +20,7 @@ const QNA_ANSWER = "/qna-answer";
 const CONNECTED_LECTURE = "/connected-lecture";
 const CONNECTED_LECTURE_RECOMMEND = "/recommend";
 const MODIFY = "/modify";
+const DETAIL = "/:lectureId/detail";
 
 //Kakao
 
@@ -36,7 +36,6 @@ const routes = {
   lecture: LECTURE,
   kakao: KAKAO,
   kakaoCallback: KAKAO_CALLBACK,
-  logout: LOGOUT,
   changePassword: CHANGE_PASSWORD,
   addCurriculum: ADD_CURRICULUM,
   uploadLecture: UPLOAD_LECTURE,
@@ -53,6 +52,10 @@ const routes = {
   recommendEpliogue: EPLIOGUE_RECOMMEND,
   recommendConnectedLecture: CONNECTED_LECTURE_RECOMMEND,
   modify: MODIFY,
+  detail: (lectureId) => {
+    if(lectureId) return `/${lectureId}/detail`;
+    else return DETAIL;
+  }
 };
 
 export default routes;

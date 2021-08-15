@@ -1,36 +1,45 @@
-import passport from "passport";
+import passport, { deserializeUser } from "passport";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import routes from "../routes";
+
+const passwordEncryption = (user, pw) => {
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(pw, salt, (err, hash) => {
+      if (err) throw err;
+      user.password = hash;
+      user
+        .save()
+        .then((user) => console.log(user))
+        .catch((err) => console.log(err));
+    });
+  });
+}
 
 export const postJoin = async (req, res, next) => {
   const {
     body: { email, password },
   } = req;
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      return res.status(400).json({
-        email: "해당 이메일을 가진 사용자가 존재합니다.",
-      });
-    } else {
-      const newUser = new User({
-        email,
-        password,
-      });
-
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          newUser
-            .save()
-            .then((user) => res.json(user))
-            .catch((err) => console.log(err));
+  try{
+    User.findOne({ email }).then((user) => {
+      if (user) {
+        return res.status(400).json({
+          email: "해당 이메일을 가진 사용자가 존재합니다.",
         });
-      });
-    }
-  });
+      } else {
+        const newUser = new User({
+          email,
+          password,
+        });
+  
+        passwordEncryption(newUser, password);
+        res.json("Success");
+      }
+    });
+  } catch(error){
+    console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
 };
 
 function issuedToken(user) {
@@ -41,7 +50,6 @@ function issuedToken(user) {
 }
 
 export const postLogin = async (req, res, next) => {
-  console.log("postLogin");
   try {
     // 아까 local로 등록한 인증과정 실행
     passport.authenticate("local", (passportError, user, info) => {
@@ -96,19 +104,15 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
 
 export const kakaoLogin = passport.authenticate("kakao");
 
-export const logout = (req, res) => {
-  res.end();
-};
-
 export const postChangePassword = async (req, res) => {
   const {
-    body: { oldPassword, newPassword },
+    body: { newPassword },
   } = req;
   try {
-    await req.user.changePassword(oldPassword, newPassword);
-    // res.redirect(routes.me);
+    passwordEncryption(req.user, newPassword);
   } catch (error) {
     console.log(error);
-    // res.render(routes.changePassword);
+    res.status(500).json({ msg: "Internal Server Error" });
   }
+  res.json("end");
 };

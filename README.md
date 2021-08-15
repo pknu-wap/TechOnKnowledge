@@ -2,13 +2,6 @@
 
 2021_WEB_TEAM1
 
-## To do list
+## API 문서
 
-- [x] passport with JWT // 7/19
-- [ ] jwt exp
-- [x] Search API // 7/23
-- [x] post Recommend API // 7/21
-- [x] load lecture sorting category // 7/23
-- [x] fix lecture
-
-- [ ] Add curriculum API
+<a href="https://mma7710.gitbook.io/api-document/">보러가기</a>
