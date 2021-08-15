@@ -1,17 +1,16 @@
-import passport from "passport";
+import passport, { deserializeUser } from "passport";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import routes from "../routes";
 
-const passwordEncryption = (user) => {
+const passwordEncryption = (user, pw) => {
   bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(user.password, salt, (err, hash) => {
+    bcrypt.hash(pw, salt, (err, hash) => {
       if (err) throw err;
       user.password = hash;
       user
         .save()
-        .then((user) => res.json(user))
+        .then((user) => console.log(user))
         .catch((err) => console.log(err));
     });
   });
@@ -32,7 +31,8 @@ export const postJoin = async (req, res, next) => {
         password,
       });
 
-      passwordEncryption(newUser);
+      passwordEncryption(newUser, password);
+      res.json("Success");
     }
   });
 };
@@ -100,17 +100,14 @@ export const kakaoLoginCallback = async (_, __, profile, cb) => {
 
 export const kakaoLogin = passport.authenticate("kakao");
 
-export const logout = (req, res) => {
-  res.end();
-};
-
 export const postChangePassword = async (req, res) => {
   const {
-    body: { oldPassword, newPassword },
+    body: { newPassword },
   } = req;
+  console.log("pw");
   try {
-    await req.user.changePassword(oldPassword, newPassword);
-    passwordEncryption(req.user);
+    passwordEncryption(req.user, newPassword);
+    res.json("end");
   } catch (error) {
     console.log(error);
   }

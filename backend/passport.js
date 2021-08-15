@@ -15,19 +15,16 @@ const verifyUser = async (email, password, done) => {
   console.log("verify");
   try {
     const user = await User.findOne({ email });
-    console.log(user);
     if (!user) {
       done(null, false, { message: "존재하지 않는 사용자 입니다." });
       return;
     }
-
     const compareResult = await bcrypt.compare(password, user.password);
 
     if (compareResult) {
       done(null, user);
       return;
     }
-
     done(null, false, { reason: "올바르지 않은 비밀번호 입니다." });
   } catch (error) {
     console.error(error);

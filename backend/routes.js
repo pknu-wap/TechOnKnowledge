@@ -2,7 +2,6 @@
 const HOME = "/";
 const SIGNIN = "/signin";
 const SIGNUP = "/signup";
-const LOGOUT = "/logout";
 const MYPAGE = "/:id/mypage";
 const WRITING = "/writing";
 const CHANGE_PASSWORD = "/change-password";
@@ -37,7 +36,6 @@ const routes = {
   lecture: LECTURE,
   kakao: KAKAO,
   kakaoCallback: KAKAO_CALLBACK,
-  logout: LOGOUT,
   changePassword: CHANGE_PASSWORD,
   addCurriculum: ADD_CURRICULUM,
   uploadLecture: UPLOAD_LECTURE,

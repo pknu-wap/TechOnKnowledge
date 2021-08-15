@@ -100,6 +100,17 @@ export const postUploadLecture = async (req, res) => {
   res.end();
 };
 
+function isRecommend(lecture, user){
+  let isuser;
+  for(let i=0;i<lecture.recommend_people.length;i++){
+    if(user.id == lecture.recommend_people[i]){
+      isuser = "user";
+      break;
+    }
+  }
+  return isuser;
+}
+
 export const postPlusRecommend = async (req, res) => {
   const {
     body: { lectureId },
@@ -108,9 +119,12 @@ export const postPlusRecommend = async (req, res) => {
   try {
     const lecture = await Lecture.findById(lectureId);
     if (lecture) {
-      lecture.recommend_people.push(user.id);
-      lecture.recommend_count = lecture.recommend_people.length;
-      lecture.save();
+      if(!isRecommend(lecture, req.user)) {
+        lecture.recommend_people.push(user._id);
+        lecture.recommend_count = lecture.recommend_people.length;
+        lecture.save();
+        console.log(lecture);
+      }
     }
   } catch (error) {
     console.log(error);
@@ -124,21 +138,24 @@ export const postMinusRecommend = async (req, res) => {
     user,
   } = req;
   try {
-    await Lecture.updateOne(
-      { _id: lectureId },
-      { $pull: { recommend_people: user.id } }
-    );
     const lecture = await Lecture.findById(lectureId);
     if (lecture) {
-      lecture.recommend_count = lecture.recommend_people.length;
-      console.log(lecture);
-      lecture.save();
+      if(isRecommend(lecture, req.user)){
+        await Lecture.updateOne(
+          { _id: lectureId },
+          { $pull: { recommend_people: user.id } }
+        );
+        lecture.recommend_count -= 1;
+        lecture.save();
+      }
     } else {
       res.error("error");
     }
+    
   } catch (error) {
     console.log(error);
   }
+  res.end();
 };
 
 export const postAddCurriculum = async (req, res) => {
