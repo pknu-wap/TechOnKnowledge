@@ -2,6 +2,6 @@
 
 2021_WEB_TEAM1
 
-## To do list
+## API 문서
 
-- [ ] Add curriculum API
+<a href="https://mma7710.gitbook.io/api-document/">보러가기</a>
